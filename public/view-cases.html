@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>View Case</title>
+
+  <!-- ✅ Favicon -->
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b2e52; /* deep blue background like homepage */
+      margin: 0;
+      padding: 0;
+    }
+
+
+/* Top navbar like dashboard */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #08213a;
+  color: white;
+  padding: 15px 30px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.navbar img {
+  height: 100px;
+}
+
+.page-title {
+  font-size: 50px;
+  font-weight: bold;
+  color: #5aa9e6;
+}
+
+.back-btn {
+  background: #2fc4b2;
+  color: white;
+  text-decoration: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+.back-btn:hover {
+  background: #29a89a;
+}
+
+/* Main content area (white card in the middle) */
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+/* Case title block */
+.case-header-title {
+  text-align: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 15px;
+}
+
+.case-header-title h1 {
+  color: #0b2e52;
+  font-size: 2em;
+  margin: 0;
+}
+
+.case-header-title .meta {
+  color: #555;
+  font-size: 1em;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* Section formatting */
+.case-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #fafafa;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.case-section h2 {
+  color: #0b2e52;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  font-size: 1.2em;
+}
+
+.case-section p {
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+/* Sub-boxes for patient, insurance, appointment */
+.sub-box {
+  background: #fff;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.sub-box h3 {
+  margin-top: 0;
+  color: #0b2e52;
+  font-size: 1em;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+/* Two-column layout for patient + insurance */
+.sub-box-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Special styling for instructions */
+.instructions-box {
+  background: #e8f4fb;
+  border-left: 6px solid #2fc4b2;
+}
+
+.instructions-text {
+  font-size: 1em;
+  line-height: 1.5;
+  color: #333;
+  padding: 10px 0;
+}
+
+.exam-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  table-layout: fixed;   /* ✅ equal width columns */
+}
+
+.exam-table th, 
+.exam-table td {
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  text-align: center;
+  vertical-align: middle;
+  word-wrap: break-word;  /* ✅ wrap long text */
+  white-space: normal;    /* ✅ allow wrapping */
+}
+
+.exam-table th {
+  background: #115680;
+  color: #fff;
+}
+.exam-img {
+  max-width: 600px;   /* increase this number for larger images */
+  max-height: 300px;
+  margin: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  object-fit: contain; /* keeps aspect ratio */
+  cursor: pointer;
+  display: inline-block;
+}
+
+.exam-img:hover {
+  transform: scale(1.1);
+  border-color: #115680;
+}
+
+.exam-images {
+  display: flex;
+  flex-wrap: wrap;          /* allows multiple images to wrap to next line */
+  justify-content: center;  /* centers images horizontally */
+  margin-top: 10px;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.result-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.result-card h3 {
+  margin-top: 0;
+  color: #115680;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 8px;
+}
+
+.result-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.result-details p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.findings {
+  margin-top: 12px;
+}
+
+.findings strong {
+  display: inline-block;
+  width: 40px;
+  color: #444;
+}
+
+.exam-img {
+  max-width: 90%;
+  margin: 15px auto;
+  display: block;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.result-card {
+  background: #f9fbfd;
+  border: 1px solid #dce3eb;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.result-card .card-header {
+  background: #115680;
+  color: #fff;
+  font-weight: bold;
+  padding: 10px 15px;
+  font-size: 16px;
+}
+
+.result-details {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  gap: 20px;
+}
+
+.result-details .meta {
+  flex: 1;
+}
+
+.findings {
+  background: #eef4fa;
+  padding: 12px 15px;
+  border-top: 1px solid #dce3eb;
+}
+
+.findings p {
+  margin: 6px 0;
+}
+
+.sub-box p {
+  margin: 4px 0;
+}
+/* CPT Codes styling */
+.cpt-box {
+  background: #fdfdfd;
+  border: 2px solid #115680;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 15px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.cpt-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cpt-item {
+  background: #115680;
+  color: white;
+  font-weight: bold;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.no-cpt {
+  color: #888;
+  font-style: italic;
+}
+
+.assessment-plan-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.assessment-col, .plan-col {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #115680;   /* 🔹 Bold border */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.assessment-col h3, .plan-col h3 {
+  margin-bottom: 15px;
+  color: #115680;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+}
+
+.assessment-col ol, .plan-col ol {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.assessment-col li, .plan-col li {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background: #f5f7fa;
+  border-radius: 6px;
+  border-left: 4px solid #115680;  /* 🔹 Accent stripe */
+}
+
+
+
+
+
+
+.sub-box { margin-bottom: 15px; padding: 10px; background: #fafafa; border-radius: 8px; }
+.sub-box h3 { margin-top: 0; color: #115680; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+  <!-- Top Navbar -->
+<div class="navbar">
+  <img src="/logo.png" alt="OptoCase Logo">
+  <div class="page-title">Case Viewer</div>
+  <a href="/professor-dashboard.html" class="back-btn">⬅ Back</a>
+</div>
+
+<!-- Main Container -->
+<div class="container">
+  <div class="case-header-title">
+    <h1 id="case-title">Loading...</h1>
+    <p class="meta" id="case-meta"></p>
+  </div>
+
+  <div id="case-body">
+    <!-- Dynamic case details will load here -->
+  </div>
+</div>
+
+
+
+
+    <a href="/professor-dashboard.html" class="back-btn">⬅ Back to Dashboard</a>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const caseId = params.get("id");
+
+    fetch(`/api/cases/${caseId}`)
+      .then(res => res.json())
+      .then(c => {
+        document.getElementById("case-title").innerText = c.case_name;
+        document.getElementById("case-meta").innerText =
+          `Created by ${c.created_by || 'Unknown'} on ${new Date(c.created_at).toLocaleDateString()}`;
+
+        document.getElementById("case-body").innerHTML = `
+          <div class="case-section instructions-box">
+  <h2>📋 Instructions</h2>
+  <div class="instructions-text">
+    ${c.instructions ? `<p>${c.instructions}</p>` : "<p>No instructions provided</p>"}
+  </div>
+</div>
+
+
+          <div class="case-section">
+  <h2>👤 Patient & Appointment</h2>
+
+  <div class="sub-box-grid">
+    <div class="sub-box">
+      <h3>👤 Patient Info</h3>
+      ${c.patient ? `
+        <p><strong>Name:</strong> ${c.patient.name}</p>
+        <p><strong>DOB:</strong> ${c.patient.dob ? new Date(c.patient.dob).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ""}</p>
+        <p><strong>Race:</strong> ${c.patient.race}</p>
+        <p><strong>Address:</strong> ${c.patient.address}</p>
+      ` : "<p>No patient info</p>"}
+    </div>
+
+    <div class="sub-box">
+  <h3>🧾 Insurance</h3>
+  ${c.patient ? `
+    <p><strong>Vision Insurance:</strong> ${c.patient.vision_insurance}</p>
+    <p><strong>Notes:</strong> ${c.patient.vision_insurance_info}</p>
+    <p><strong>Medical Insurance:</strong> ${c.patient.medical_insurance}</p>
+    <p><strong>Notes:</strong> ${c.patient.medical_insurance_info}</p>
+  ` : "<p>No insurance info</p>"}
+</div>
+
+  </div>
+
+  <div class="sub-box">
+    <h3>📅 Appointment</h3>
+    ${c.appointment ? `
+      <p><strong>Date:</strong> ${c.appointment.date ? new Date(c.appointment.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ""}</p>
+      <p><strong>Time:</strong> ${c.appointment.time ? new Date("1970-01-01T" + c.appointment.time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ""}</p>
+      <p><strong>Exam Type:</strong> ${c.appointment.exam_type}</p>
+    ` : "<p>No appointment info</p>"}
+  </div>
+</div>
+ <!-- Step 3: Chief Complaint & History -->
+          <div class="case-section">
+            <h2>📝 Chief Complaint & History</h2>
+            ${c.history ? `
+              <div class="sub-box"><h3>Chief Complaint</h3><p>${c.history.chief_complaint || "Not provided"}</p></div>
+              <div class="sub-box"><h3>History of Present Illness (HPI)</h3><p>${c.history.hpi || "Not provided"}</p></div>
+
+              <div class="sub-box-grid">
+                <div class="sub-box"><h3>Past Ocular History (POH)</h3><p>${c.history.poh || "Not provided"}</p></div>
+                <div class="sub-box"><h3>Past Medical History (PMH)</h3><p>${c.history.pmh || "Not provided"}</p></div>
+              </div>
+
+              <div class="sub-box-grid">
+                <div class="sub-box"><h3>Family History (FHx)</h3><p>${c.history.fhx || "Not provided"}</p></div>
+                <div class="sub-box"><h3>Medications</h3><p>${c.history.meds || "Not provided"}</p></div>
+              </div>
+
+              <div class="sub-box-grid">
+              <div class="sub-box"><h3>Allergies</h3><p>${c.history.allergies || "Not provided"}</p></div>
+              <div class="sub-box"><h3>Social History</h3><p>${c.history.social_history || "Not provided"}</p></div>
+            </div>
+          ` : "<p>No history info</p>"}
+        </div>
+
+        <!-- Step 4: Exam Findings -->
+<div class="case-section">
+  <h2>🔍 Exam Findings</h2>
+
+  ${c.exam ? `
+
+    <!-- Visual Acuity -->
+    <div class="sub-box">
+      <h3>Visual Acuity</h3>
+      <table class="exam-table">
+        <tr><th>Type</th><th>OD</th><th>OS</th></tr>
+        <tr>
+          <td>${c.exam.va_type || "N/A"}</td>
+          <td>${c.exam.va_od || "N/A"}</td>
+          <td>${c.exam.va_os || "N/A"}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- IOP -->
+    <div class="sub-box">
+      <h3>Intraocular Pressure</h3>
+      <table class="exam-table">
+        <tr><th>Method</th><th>OD</th><th>OS</th></tr>
+        <tr>
+          <td>${c.exam.iop_method || "N/A"}</td>
+          <td>${c.exam.iop_od || "N/A"}</td>
+          <td>${c.exam.iop_os || "N/A"}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Pupils / EOMs / Confrontation Fields -->
+    <div class="sub-box-grid">
+      <div class="sub-box"><h3>Pupils</h3><p>${c.exam.pupils || "N/A"}</p></div>
+      <div class="sub-box"><h3>EOMs</h3><p>${c.exam.eoms || "N/A"}</p></div>
+      <div class="sub-box"><h3>Confrontation Fields</h3><p>${c.exam.fields || "N/A"}</p></div>
+    </div>
+
+    <!-- Anterior Segment -->
+<div class="sub-box">
+  <h3>Anterior Segment</h3>
+  <table class="exam-table">
+    <tr><th>OD</th><th>Section</th><th>OS</th></tr>
+    <tr><td>${c.exam.od_adnexa || ""}</td><td class="center">Adnexa</td><td>${c.exam.os_adnexa || ""}</td></tr>
+    <tr><td>${c.exam.od_lids_lashes || ""}</td><td class="center">Lids / Lashes</td><td>${c.exam.os_lids_lashes || ""}</td></tr>
+    <tr><td>${c.exam.od_conjunctiva || ""}</td><td class="center">Conjunctiva</td><td>${c.exam.os_conjunctiva || ""}</td></tr>
+    <tr><td>${c.exam.od_cornea || ""}</td><td class="center">Cornea</td><td>${c.exam.os_cornea || ""}</td></tr>
+    <tr><td>${c.exam.od_anterior_chamber || ""}</td><td class="center">Anterior Chamber</td><td>${c.exam.os_anterior_chamber || ""}</td></tr>
+    <tr><td>${c.exam.od_iris || ""}</td><td class="center">Iris</td><td>${c.exam.os_iris || ""}</td></tr>
+    <tr><td>${c.exam.od_lens || ""}</td><td class="center">Lens</td><td>${c.exam.os_lens || ""}</td></tr>
+    <tr><td>${c.exam.od_anterior_vitreous || ""}</td><td class="center">Anterior Vitreous</td><td>${c.exam.os_anterior_vitreous || ""}</td></tr>
+  </table>
+
+  <!-- Anterior Images -->
+  <div class="exam-images">
+    ${c.exam.anterior_image 
+      ? c.exam.anterior_image.split(',').map(img => `
+          <img src="/uploads/${img.trim()}" class="exam-img" onclick="window.open('/uploads/${img.trim()}','_blank')">
+        `).join('')
+      : "<p>No images</p>"
+    }
+  </div>
+</div>
+
+<!-- Posterior Segment -->
+<div class="sub-box">
+  <h3>Posterior Segment</h3>
+  <table class="exam-table">
+    <tr><th>OD</th><th>Section</th><th>OS</th></tr>
+    <tr><td>${c.exam.od_posterior_vitreous || ""}</td><td class="center">Posterior Vitreous</td><td>${c.exam.os_posterior_vitreous || ""}</td></tr>
+    <tr><td>${c.exam.od_cd || ""}</td><td class="center">C/D</td><td>${c.exam.os_cd || ""}</td></tr>
+    <tr><td>${c.exam.od_disc || ""}</td><td class="center">Disc</td><td>${c.exam.os_disc || ""}</td></tr>
+    <tr><td>${c.exam.od_macula || ""}</td><td class="center">Macula</td><td>${c.exam.os_macula || ""}</td></tr>
+    <tr><td>${c.exam.od_vessels || ""}</td><td class="center">Vessels</td><td>${c.exam.os_vessels || ""}</td></tr>
+    <tr><td>${c.exam.od_periphery || ""}</td><td class="center">Periphery</td><td>${c.exam.os_periphery || ""}</td></tr>
+  </table>
+
+  <!-- Posterior Images -->
+  <div class="exam-images">
+    ${c.exam.posterior_image 
+      ? c.exam.posterior_image.split(',').map(img => `
+          <img src="/uploads/${img.trim()}" class="exam-img" onclick="window.open('/uploads/${img.trim()}','_blank')">
+        `).join('')
+      : "<p>No images</p>"
+    }
+  </div>
+</div>
+
+
+    <!-- Ancillary Tests -->
+<div class="case-section">
+  <h2>Ancillary Tests</h2>
+
+  <!-- Fundus Autofluorescence -->
+  <div class="sub-box">
+    <h3>Fundus Autofluorescence</h3>
+    <p><strong>Status:</strong> ${c.exam.fundus_autofluorescence_status 
+      ? c.exam.fundus_autofluorescence_status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) 
+      : "N/A"}</p>
+    <p><strong>Notes:</strong> ${c.exam.fundus_autofluorescence_notes || "N/A"}</p>
+    <div class="exam-images">
+  ${c.exam.fundus_autofluorescence_images 
+    ? c.exam.fundus_autofluorescence_images.split(',').map(img => `
+      <img src="/uploads/${img.trim()}" class="exam-img" onclick="window.open('/uploads/${img.trim()}','_blank')">
+    `).join('') 
+    : "<p>No images</p>"
+  }
+</div>
+
+  </div>
+
+  <!-- OCT -->
+<div class="sub-box">
+  <h3>OCT</h3>
+  <p><strong>Status:</strong> ${
+    c.exam.oct_status 
+      ? c.exam.oct_status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) 
+      : "N/A"
+  }</p>
+
+  <p><strong>Type:</strong> ${
+  c.exam.oct_type 
+    ? c.exam.oct_type === "anterior_seg" ? "Anterior Segment" :
+      c.exam.oct_type === "posterior_seg" ? "Posterior Segment" :
+      c.exam.oct_type === "octa" ? "OCT Angiography" :
+      c.exam.oct_type === "other" ? "Other" :
+      c.exam.oct_type.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())
+    : "N/A"
+}</p>
+
+
+  <p><strong>Type:</strong> ${
+    
+  (c.exam.oct_type && typeof c.exam.oct_type === "string")
+    ? c.exam.oct_type.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())
+    : "N/A"
+}</p>
+
+
+  <p><strong>Notes:</strong> ${c.exam.oct_notes || "N/A"}</p>
+
+  <div class="exam-images">
+    ${
+      c.exam.oct_images 
+        ? c.exam.oct_images.split(',').map(img => `
+          <img src="/uploads/${img.trim()}" class="exam-img" onclick="window.open('/uploads/${img.trim()}','_blank')">
+        `).join('') 
+        : "<p>No images</p>"
+    }
+  </div>
+</div>
+
+
+
+  <!-- Visual Field -->
+  <div class="sub-box">
+    <h3>Visual Field</h3>
+    <p><strong>Status:</strong> ${c.exam.vf_status 
+      ? c.exam.vf_status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) 
+      : "N/A"}</p>
+    <p><strong>Type:</strong> ${
+  c.exam.vf_type === "24-2" ? "24-2" :
+  c.exam.vf_type === "30-2" ? "30-2" :
+  c.exam.vf_type === "10-2" ? "10-2" :
+  c.exam.vf_type === "esterman" ? "Esterman" :
+  c.exam.vf_type === "other" ? "Other" :
+  "N/A"
+}</p>
+
+    <p><strong>Notes:</strong> ${c.exam.vf_notes || "N/A"}</p>
+    <div class="exam-images">
+  ${c.exam.vf_images 
+    ? c.exam.vf_images.split(',').map(img => `
+      <img src="/uploads/${img.trim()}" class="exam-img" onclick="window.open('/uploads/${img.trim()}','_blank')">
+    `).join('') 
+    : "<p>No images</p>"
+  }
+</div>
+
+  </div>
+
+  <!-- Gonioscopy -->
+  <div class="sub-box">
+    <h3>Gonioscopy</h3>
+    <p><strong>Status:</strong> ${c.exam.gonioscopy_status 
+      ? c.exam.gonioscopy_status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) 
+      : "N/A"}</p>
+    <p><strong>Notes:</strong> ${c.exam.gonioscopy_notes || "N/A"}</p>
+    <div class="exam-images">
+  ${c.exam.gonioscopy_images 
+    ? c.exam.gonioscopy_images.split(',').map(img => `
+      <img src="/uploads/${img.trim()}" class="exam-img" onclick="window.open('/uploads/${img.trim()}','_blank')">
+    `).join('') 
+    : "<p>No images</p>"
+  }
+</div>
+
+  </div>
+
+  <!-- Topography -->
+  <div class="sub-box">
+    <h3>Topography</h3>
+    <p><strong>Status:</strong> ${c.exam.topography_status 
+      ? c.exam.topography_status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) 
+      : "N/A"}</p>
+    <p><strong>Notes:</strong> ${c.exam.topography_notes || "N/A"}</p>
+    <div class="exam-images">
+  ${c.exam.topography_images 
+    ? c.exam.topography_images.split(',').map(img => `
+      <img src="/uploads/${img.trim()}" class="exam-img" onclick="window.open('/uploads/${img.trim()}','_blank')">
+    `).join('') 
+    : "<p>No images</p>"
+  }
+</div>
+
+  </div>
+
+  <!-- A-Scan -->
+  <div class="sub-box">
+    <h3>A-Scan</h3>
+    <p><strong>Status:</strong> ${c.exam.ascan_status 
+      ? c.exam.ascan_status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) 
+      : "N/A"}</p>
+    <p><strong>Notes:</strong> ${c.exam.ascan_notes || "N/A"}</p>
+    <div class="exam-images">
+  ${c.exam.ascan_images 
+    ? c.exam.ascan_images.split(',').map(img => `
+      <img src="/uploads/${img.trim()}" class="exam-img" onclick="window.open('/uploads/${img.trim()}','_blank')">
+    `).join('') 
+    : "<p>No images</p>"
+  }
+</div>
+
+  </div>
+
+  <!-- B-Scan -->
+  <div class="sub-box">
+    <h3>B-Scan</h3>
+    <p><strong>Status:</strong> ${c.exam.bscan_status 
+      ? c.exam.bscan_status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) 
+      : "N/A"}</p>
+    <p><strong>Notes:</strong> ${c.exam.bscan_notes || "N/A"}</p>
+    <div class="exam-images">
+  ${c.exam.bscan_images 
+    ? c.exam.bscan_images.split(',').map(img => `
+      <img src="/uploads/${img.trim()}" class="exam-img" onclick="window.open('/uploads/${img.trim()}','_blank')">
+    `).join('') 
+    : "<p>No images</p>"
+  }
+</div>
+
+  </div>
+
+  <!-- Pachymetry -->
+  <div class="sub-box">
+    <h3>Pachymetry</h3>
+    <p><strong>Status:</strong> ${c.exam.pachymetry_status 
+      ? c.exam.pachymetry_status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) 
+      : "N/A"}</p>
+    <p><strong>Notes:</strong> ${c.exam.pachymetry_notes || "N/A"}</p>
+    <div class="exam-images">
+  ${c.exam.pachymetry_images 
+    ? c.exam.pachymetry_images.split(',').map(img => `
+      <img src="/uploads/${img.trim()}" class="exam-img" onclick="window.open('/uploads/${img.trim()}','_blank')">
+    `).join('') 
+    : "<p>No images</p>"
+  }
+</div>
+
+  </div>
+
+  <!-- Fundus Photo -->
+  <div class="sub-box">
+    <h3>Fundus Photo</h3>
+    <p><strong>Status:</strong> ${c.exam.fundus_photo_status 
+      ? c.exam.fundus_photo_status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) 
+      : "N/A"}</p>
+    <p><strong>Notes:</strong> ${c.exam.fundus_photo_notes || "N/A"}</p>
+    <div class="exam-images">
+  ${c.exam.fundus_photo_images 
+    ? c.exam.fundus_photo_images.split(',').map(img => `
+      <img src="/uploads/${img.trim()}" class="exam-img" onclick="window.open('/uploads/${img.trim()}','_blank')">
+    `).join('') 
+    : "<p>No images</p>"
+  }
+</div>
+
+  </div>
+</div>
+
+  </div>
+  ` : "<p>No exam findings recorded</p>" }
+</div>
+
+
+
+<!-- Step 5: Interpretations & Results -->
+          <div class="case-section">
+            <h2>🧾 Interpretations & Results</h2>
+            <div class="results-grid">
+
+              <!-- Fundus Autofluorescence -->
+              <div class="result-card">
+                <div class="card-header">Fundus Autofluorescence</div>
+                <div class="result-details">
+                  <div class="meta">
+                    <p><strong>Type:</strong> ${
+  c.exam.fa_type === "short_wave" ? "Short Wave FAF" :
+  c.exam.fa_type === "near_infrared" ? "Near-Infrared FAF" :
+  c.exam.fa_type === "other" ? "Other" :
+  "N/A"
+}</p>
+
+                    <p><strong>Date:</strong> ${
+  c.exam.fa_date
+    ? new Date(c.exam.fa_date).toLocaleDateString("en-US")
+    : "N/A"
+}</p>
+
+                    <p><strong>Reason:</strong> ${c.exam.fa_reason || "N/A"}</p>
+                  </div>
+                  <div class="meta">
+                    <p><strong>Cooperation:</strong> ${c.exam.fa_cooperation || "N/A"}</p>
+                    <p><strong>Reliability:</strong> ${c.exam.fa_reliability || "N/A"}</p>
+                  </div>
+                </div>
+                <div class="findings">
+                  <p><strong>Findings OD:</strong> ${c.exam.fa_findings_od || "N/A"}</p>
+                  <p><strong>Findings OS:</strong> ${c.exam.fa_findings_os || "N/A"}</p>
+                </div>
+              </div>
+
+              <!-- OCT -->
+              <div class="result-card">
+                <div class="card-header">Optical Coherence Tomography (OCT)</div>
+                <div class="result-details">
+                  <div class="meta">
+                    <p><strong>Type:</strong> ${c.exam.oct_type || "N/A"}</p>
+                    <p><strong>Date:</strong> ${
+  c.exam.oct_date
+    ? new Date(c.exam.oct_date).toLocaleDateString("en-US")
+    : "N/A"
+}</p>
+
+                    <p><strong>Reason:</strong> ${c.exam.oct_reason || "N/A"}</p>
+                  </div>
+                  <div class="meta">
+                    <p><strong>Cooperation:</strong> ${c.exam.oct_cooperation || "N/A"}</p>
+                    <p><strong>Reliability:</strong> ${c.exam.oct_reliability || "N/A"}</p>
+                  </div>
+                </div>
+                <div class="findings">
+                  <p><strong>Findings OD:</strong> ${c.exam.oct_findings_od || "N/A"}</p>
+                  <p><strong>Findings OS:</strong> ${c.exam.oct_findings_os || "N/A"}</p>
+                </div>
+              </div>
+
+              <!-- Visual Field -->
+              <div class="result-card">
+                <div class="card-header">Visual Field</div>
+                <div class="result-details">
+                  <div class="meta">
+                    <p><strong>Type:</strong> ${c.exam.vf_type || "N/A"}</p>
+                    <p><strong>Date:</strong> ${
+  c.exam.vf_date
+    ? new Date(c.exam.vf_date).toLocaleDateString("en-US")
+    : "N/A"
+}</p>
+
+                    <p><strong>Reason:</strong> ${c.exam.vf_reason || "N/A"}</p>
+                  </div>
+                  <div class="meta">
+                    <p><strong>Cooperation:</strong> ${c.exam.vf_cooperation || "N/A"}</p>
+                    <p><strong>Reliability:</strong> ${c.exam.vf_reliability || "N/A"}</p>
+                  </div>
+                </div>
+                <div class="findings">
+                  <p><strong>Findings OD:</strong> ${c.exam.vf_findings_od || "N/A"}</p>
+                  <p><strong>Findings OS:</strong> ${c.exam.vf_findings_os || "N/A"}</p>
+                </div>
+              </div>
+
+              <!-- Gonioscopy -->
+              <div class="result-card">
+                <div class="card-header">Gonioscopy</div>
+                <div class="result-details">
+                  <div class="meta">
+                    <p><strong>Date:</strong> ${
+  c.exam.gonioscopy_date
+    ? new Date(c.exam.gonioscopy_date).toLocaleDateString("en-US")
+    : "N/A"
+}</p>
+
+                    <p><strong>Reason:</strong> ${c.exam.gonioscopy_reason || "N/A"}</p>
+                  </div>
+                  <div class="meta">
+                    <p><strong>Cooperation:</strong> ${c.exam.gonioscopy_cooperation || "N/A"}</p>
+                    <p><strong>Reliability:</strong> ${c.exam.gonioscopy_reliability || "N/A"}</p>
+                  </div>
+                </div>
+                <div class="findings">
+                  <p><strong>Findings OD:</strong> ${c.exam.gonioscopy_findings_od || "N/A"}</p>
+                  <p><strong>Findings OS:</strong> ${c.exam.gonioscopy_findings_os || "N/A"}</p>
+                </div>
+              </div>
+
+              <!-- Topography -->
+              <div class="result-card">
+                <div class="card-header">Topography</div>
+                <div class="result-details">
+                  <div class="meta">
+                    <p><strong>Date:</strong> ${
+  c.exam.topography_date
+    ? new Date(c.exam.topography_date).toLocaleDateString("en-US")
+    : "N/A"
+}</p>
+
+                    <p><strong>Reason:</strong> ${c.exam.topography_reason || "N/A"}</p>
+                  </div>
+                  <div class="meta">
+                    <p><strong>Cooperation:</strong> ${c.exam.topography_cooperation || "N/A"}</p>
+                    <p><strong>Reliability:</strong> ${c.exam.topography_reliability || "N/A"}</p>
+                  </div>
+                </div>
+                <div class="findings">
+                  <p><strong>Findings OD:</strong> ${c.exam.topography_findings_od || "N/A"}</p>
+                  <p><strong>Findings OS:</strong> ${c.exam.topography_findings_os || "N/A"}</p>
+                </div>
+              </div>
+
+              <!-- A-Scan -->
+              <div class="result-card">
+                <div class="card-header">A-Scan</div>
+                <div class="result-details">
+                  <div class="meta">
+                    <p><strong>Date:</strong> ${
+  c.exam.ascan_date
+    ? new Date(c.exam.ascan_date).toLocaleDateString("en-US")
+    : "N/A"
+}</p>
+
+                    <p><strong>Reason:</strong> ${c.exam.ascan_reason || "N/A"}</p>
+                  </div>
+                  <div class="meta">
+                    <p><strong>Cooperation:</strong> ${c.exam.ascan_cooperation || "N/A"}</p>
+                    <p><strong>Reliability:</strong> ${c.exam.ascan_reliability || "N/A"}</p>
+                  </div>
+                </div>
+                <div class="findings">
+                  <p><strong>Findings OD:</strong> ${c.exam.ascan_findings_od || "N/A"}</p>
+                  <p><strong>Findings OS:</strong> ${c.exam.ascan_findings_os || "N/A"}</p>
+                </div>
+              </div>
+
+              <!-- B-Scan -->
+              <div class="result-card">
+                <div class="card-header">B-Scan</div>
+                <div class="result-details">
+                  <div class="meta">
+                    <p><strong>Date:</strong> ${
+  c.exam.bscan_date
+    ? new Date(c.exam.bscan_date).toLocaleDateString("en-US")
+    : "N/A"
+}</p>
+
+                    <p><strong>Reason:</strong> ${c.exam.bscan_reason || "N/A"}</p>
+                  </div>
+                  <div class="meta">
+                    <p><strong>Cooperation:</strong> ${c.exam.bscan_cooperation || "N/A"}</p>
+                    <p><strong>Reliability:</strong> ${c.exam.bscan_reliability || "N/A"}</p>
+                  </div>
+                </div>
+                <div class="findings">
+                  <p><strong>Findings OD:</strong> ${c.exam.bscan_findings_od || "N/A"}</p>
+                  <p><strong>Findings OS:</strong> ${c.exam.bscan_findings_os || "N/A"}</p>
+                </div>
+              </div>
+
+              <!-- Pachymetry -->
+              <div class="result-card">
+                <div class="card-header">Pachymetry</div>
+                <div class="result-details">
+                  <div class="meta">
+                    <p><strong>Date:</strong> ${
+  c.exam.pachymetry_date
+    ? new Date(c.exam.pachymetry_date).toLocaleDateString("en-US")
+    : "N/A"
+}</p>
+
+                    <p><strong>Reason:</strong> ${c.exam.pachymetry_reason || "N/A"}</p>
+                  </div>
+                  <div class="meta">
+                    <p><strong>Cooperation:</strong> ${c.exam.pachymetry_cooperation || "N/A"}</p>
+                    <p><strong>Reliability:</strong> ${c.exam.pachymetry_reliability || "N/A"}</p>
+                  </div>
+                </div>
+                <div class="findings">
+                  <p><strong>Findings OD:</strong> ${c.exam.pachymetry_findings_od || "N/A"}</p>
+                  <p><strong>Findings OS:</strong> ${c.exam.pachymetry_findings_os || "N/A"}</p>
+                </div>
+              </div>
+
+              <!-- Fundus Photo -->
+              <div class="result-card">
+                <div class="card-header">Fundus Photo</div>
+                <div class="result-details">
+                  <div class="meta">
+                    <p><strong>Date:</strong> ${
+  c.exam.fundus_photo_date
+    ? new Date(c.exam.fundus_photo_date).toLocaleDateString("en-US")
+    : "N/A"
+}</p>
+
+                    <p><strong>Reason:</strong> ${c.exam.fundus_photo_reason || "N/A"}</p>
+                  </div>
+                  <div class="meta">
+                    <p><strong>Cooperation:</strong> ${c.exam.fundus_photo_cooperation || "N/A"}</p>
+                    <p><strong>Reliability:</strong> ${c.exam.fundus_photo_reliability || "N/A"}</p>
+                  </div>
+                </div>
+                <div class="findings">
+                  <p><strong>Findings OD:</strong> ${c.exam.fundus_photo_findings_od || "N/A"}</p>
+                  <p><strong>Findings OS:</strong> ${c.exam.fundus_photo_findings_os || "N/A"}</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Assessment & Plan -->
+<div class="case-section">
+  <h2>📝 Assessment & Plan</h2>
+
+  ${
+    c.assessments && c.assessments.length > 0
+      ? `
+        <div class="assessment-plan-grid">
+          <div class="assessment-col">
+            <h3>Assessment (ICD-10)</h3>
+            <ol>
+              ${c.assessments.map(a => `
+                <li>${a.icd10_code ? a.icd10_code : "N/A"}</li>
+              `).join('')}
+            </ol>
+          </div>
+          <div class="plan-col">
+            <h3>Plan</h3>
+            <ol>
+              ${c.assessments.map(a => `
+                <li>${a.plan ? a.plan : "No plan provided"}</li>
+              `).join('')}
+            </ol>
+          </div>
+        </div>
+      `
+      : "<p class='no-icd10'>No assessments recorded</p>"
+  }
+
+  <!-- CPT Codes -->
+  <div class="cpt-box">
+    <h3>💳 CPT Codes</h3>
+    ${
+      c.cpt_codes && c.cpt_codes.length > 0
+        ? `<ul class="cpt-list">` +
+            c.cpt_codes.map(code => `<li class="cpt-item">${code}</li>`).join('') +
+          `</ul>`
+        : "<p class='no-cpt'>No CPT codes recorded</p>"
+    }
+  </div>
+</div>
+
+
+
+
+
+
+
+
+`;
+      })
+      .catch(() => {
+        document.getElementById("case-title").innerText = "Error loading case";
+      });
+  </script>
+</body>
+</html>

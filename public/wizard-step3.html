@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Step 3: History</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Step 3: Chief Complaint & History</h2>
+
+    <!-- enctype is required for file upload -->
+    <form method="POST" action="/wizard/step3" enctype="multipart/form-data">
+      <input type="hidden" id="case_id" name="case_id">
+      <script>
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById('case_id').value = params.get('case_id');
+      </script>
+
+      <label for="chief_complaint">Chief Complaint</label>
+      <textarea id="chief_complaint" name="chief_complaint" required></textarea>
+
+      <label for="hpi">History of Present Illness (HPI)</label>
+      <textarea id="hpi" name="hpi"></textarea>
+
+      <label for="poh">Past Ocular History (POH)</label>
+      <textarea id="poh" name="poh"></textarea>
+
+      <label for="pmh">Past Medical History (PMH)</label>
+      <textarea id="pmh" name="pmh"></textarea>
+
+      <label for="fhx">Family History (FHx)</label>
+      <textarea id="fhx" name="fhx"></textarea>
+
+      <label for="meds">Medications</label>
+      <textarea id="meds" name="meds"></textarea>
+
+      <label for="allergies">Allergies</label>
+      <textarea id="allergies" name="allergies"></textarea>
+
+      <label for="social_history">Social History</label>
+      <textarea id="social_history" name="social_history"></textarea>
+
+      <!-- ✅ Avatar upload (saved into patients table) -->
+      <label for="patient_avatar">Upload Patient Avatar</label>
+      <input type="file" id="patient_avatar" name="patient_avatar" accept="image/*">
+
+      <button type="submit">Next ➡️</button>
+    </form>
+
+    <a class="back-link" href="/professor/dashboard">⬅ Back to Dashboard</a>
+  </div>
+</body>
+</html>

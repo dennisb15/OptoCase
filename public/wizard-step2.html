@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Step 2: Patient & Appointment</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Step 2: Patient & Appointment</h2>
+
+    <form method="POST" action="/wizard/step2">
+      <input type="hidden" id="case_id" name="case_id">
+      <script>
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById('case_id').value = params.get('case_id');
+      </script>
+
+      <label for="patient_name">Patient Name</label>
+      <input type="text" id="patient_name" name="patient_name" required>
+
+      <label for="address">Address</label>
+      <input type="text" id="address" name="address">
+
+      <label for="dob">Date of Birth</label>
+      <input type="date" id="dob" name="dob">
+
+      <label for="race">Race</label>
+      <input type="text" id="race" name="race">
+
+      <label for="vision_insurance">Vision Insurance</label>
+      <input type="text" id="vision_insurance" name="vision_insurance">
+
+      <label for="vision_insurance_info">Vision Insurance Info</label>
+      <textarea id="vision_insurance_info" name="vision_insurance_info"></textarea>
+
+      <label for="medical_insurance">Medical Insurance</label>
+      <input type="text" id="medical_insurance" name="medical_insurance">
+
+      <label for="medical_insurance_info">Medical Insurance Info</label>
+      <textarea id="medical_insurance_info" name="medical_insurance_info"></textarea>
+
+      <label for="appt_date">Appointment Date</label>
+      <input type="date" id="appt_date" name="appt_date">
+
+      <label for="appt_time">Appointment Time</label>
+      <input type="time" id="appt_time" name="appt_time">
+
+      <label for="exam_type">Exam Type</label>
+      <input type="text" id="exam_type" name="exam_type">
+
+      <button type="submit">Next ➡️</button>
+    </form>
+
+    <a class="back-link" href="/professor/dashboard">⬅ Back to Dashboard</a>
+  </div>
+</body>
+</html>

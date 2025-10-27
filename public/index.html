@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OptoCase</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background-color: #0b2e52; /* deep blue background */
+      color: #5aa9e6;
+    }
+    img {
+      max-width: 700px;
+      margin: 40px auto 0;
+      display: block;
+    }
+    .button-container {
+      margin-top: 10px;
+    }
+    button {
+      display: block;
+      margin: 12px auto;
+      padding: 14px 40px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      border-radius: 50px; /* rounded pill look */
+      background: linear-gradient(135deg, #2fc4b2, #29a89a); /* gradient teal */
+      color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #29a89a, #2fc4b2); /* reverse gradient on hover */
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+    button:active {
+      transform: scale(0.97);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <img src="/logo.png" alt="OptoCase Logo">
+  <div class="button-container">
+    <button onclick="location.href='/login/student'">Student Login</button>
+    <button onclick="location.href='/login/professor'">Professor Login</button>
+  </div>
+</body>
+</html>

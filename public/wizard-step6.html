@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Step 6: Assessment & Plan</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .assessment-item {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    .add-btn {
+      margin: 10px 0;
+      background: #115680;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .add-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    /* Modal styling */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      width: 400px;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      border-top: 8px solid #115680;
+    }
+    .modal-content h3 {
+      margin-top: 0;
+      color: #115680;
+    }
+    .modal-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-around;
+    }
+    .confirm-btn {
+      background: #115680;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .cancel-btn {
+      background: #fad739;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Step 6: Assessment & Plan</h2>
+
+    <form id="step6Form" method="POST" action="/wizard/step6">
+      <input type="hidden" id="case_id" name="case_id">
+
+      <script>
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById('case_id').value = params.get('case_id');
+      </script>
+
+      <h3>Assessments (ICD-10 + Plan)</h3>
+      <p>Enter up to 10 diagnoses with corresponding plans. 5 are shown by default.</p>
+
+      <div id="assessments">
+        <!-- Default 5 diagnosis fields -->
+        <div class="assessment-item">
+          <label>ICD-10 Code 1:</label>
+          <input type="text" name="icd10_code_1" placeholder="ICD-10 Code">
+          <textarea name="plan_1" placeholder="Plan for this diagnosis"></textarea>
+        </div>
+        <div class="assessment-item">
+          <label>ICD-10 Code 2:</label>
+          <input type="text" name="icd10_code_2" placeholder="ICD-10 Code">
+          <textarea name="plan_2" placeholder="Plan for this diagnosis"></textarea>
+        </div>
+        <div class="assessment-item">
+          <label>ICD-10 Code 3:</label>
+          <input type="text" name="icd10_code_3" placeholder="ICD-10 Code">
+          <textarea name="plan_3" placeholder="Plan for this diagnosis"></textarea>
+        </div>
+        <div class="assessment-item">
+          <label>ICD-10 Code 4:</label>
+          <input type="text" name="icd10_code_4" placeholder="ICD-10 Code">
+          <textarea name="plan_4" placeholder="Plan for this diagnosis"></textarea>
+        </div>
+        <div class="assessment-item">
+          <label>ICD-10 Code 5:</label>
+          <input type="text" name="icd10_code_5" placeholder="ICD-10 Code">
+          <textarea name="plan_5" placeholder="Plan for this diagnosis"></textarea>
+        </div>
+      </div>
+
+      <button type="button" id="addAssessment" class="add-btn">➕ Add Another Diagnosis</button>
+
+      <h3>CPT Codes</h3>
+      <p>Select one or more CPT codes for this encounter.</p>
+      <input type="text" name="cpt_codes" placeholder="Enter CPT codes (comma separated)">
+
+      <!-- Trigger Finalize -->
+      <button type="button" id="finalizeBtn" class="add-btn">Finalize Case ✅</button>
+    </form>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+      <div class="modal-content">
+        <h3>Finalize Case?</h3>
+        <p>Are you sure you want to submit this case? Once finalized, it will be saved permanently.</p>
+        <div class="modal-buttons">
+          <button class="confirm-btn" id="confirmSubmit">Yes, Submit</button>
+          <button class="cancel-btn" id="cancelSubmit">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <a class="back-link" href="/professor/dashboard">⬅ Back to Dashboard</a>
+  </div>
+
+  <script>
+    let count = 5;
+    const maxCount = 10;
+
+    document.getElementById("addAssessment").addEventListener("click", () => {
+      if (count >= maxCount) return;
+
+      count++;
+      const container = document.getElementById("assessments");
+
+      const div = document.createElement("div");
+      div.classList.add("assessment-item");
+      div.innerHTML = `
+        <label>ICD-10 Code ${count}:</label>
+        <input type="text" name="icd10_code_${count}" placeholder="ICD-10 Code">
+        <textarea name="plan_${count}" placeholder="Plan for this diagnosis"></textarea>
+      `;
+      container.appendChild(div);
+
+      if (count === maxCount) {
+        document.getElementById("addAssessment").disabled = true;
+      }
+    });
+
+    // Modal logic
+    const modal = document.getElementById("confirmModal");
+    const finalizeBtn = document.getElementById("finalizeBtn");
+    const confirmSubmit = document.getElementById("confirmSubmit");
+    const cancelSubmit = document.getElementById("cancelSubmit");
+    const form = document.getElementById("step6Form");
+
+    finalizeBtn.addEventListener("click", () => {
+      modal.style.display = "flex";
+    });
+
+    cancelSubmit.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+
+    confirmSubmit.addEventListener("click", () => {
+      form.submit();
+    });
+  </script>
+</body>
+</html>

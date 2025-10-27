@@ -1,0 +1,2892 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OptoCase – Encounter</title>
+  <style>
+    body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #0b2e52;
+  color: #5aa9e6;
+}
+
+/* Top bar */
+.ehr-topbar {
+  display: flex;
+  align-items: center;
+  background-color: #08213a;
+  padding: 12px 24px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  gap: 20px;
+}
+.ehr-topbar img {
+  height: 80px; /* larger logo */
+}
+.ehr-topbar .patient-header {
+  color: #5aa9e6;
+  font-weight: bold;
+  font-size: 20px;
+  text-align: left;
+}
+.ehr-topbar .patient-header span {
+  display: block;
+  font-weight: normal;
+  font-size: 15px;
+  color: #cce4f8;
+}
+
+.ehr-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px); /* account for topbar */
+}
+
+/* Tabs */
+.ehr-tabs {
+  display: flex;
+  background: #093259;
+  border-bottom: 2px solid #29a89a;
+}
+.ehr-tabs button {
+  flex: 1;
+  padding: 14px;
+  background: none;
+  border: none;
+  font-weight: bold;
+  font-size: 15px;
+  color: #5aa9e6;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.ehr-tabs button:hover {
+  background: #2fc4b2;
+  color: #fff;
+}
+.ehr-tabs button.active {
+  background: #115680;
+  color: #fff;
+}
+.ehr-tabs .finalize-btn {
+  background: linear-gradient(135deg, #2fc4b2, #29a89a);
+  color: #fff;
+  border-left: 2px solid #08213a;
+}
+.ehr-tabs .finalize-btn:hover {
+  background: linear-gradient(135deg, #29a89a, #2fc4b2);
+}
+.ehr-tabs button.locked {
+  background: #333 !important;
+  color: #777 !important;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Tab Content */
+.ehr-tab {
+  display: none;
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background: #fff;
+  color: #08213a;
+  border-top: 4px solid #115680;
+  border-radius: 0 0 12px 12px;
+  margin: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.ehr-tab.active {
+  display: block;
+}
+.ehr-tab h2 {
+  color: #115680;
+  border-bottom: 2px solid #2fc4b2;
+  padding-bottom: 6px;
+}
+
+/* ✅ Modern Chatbox Styling */
+.chatbox {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fdfdfd;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+#chat-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+.chat-message {
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-radius: 16px;
+  max-width: 70%;
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.chat-message.doctor {
+  background: #115680;
+  color: #fff;
+  margin-left: auto;
+  text-align: left;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-message.patient {
+  background: #e6f3f9;
+  color: #08213a;
+  margin-right: auto;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-input {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  background: #fff;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chat-input input:focus {
+  border-color: #115680;
+  box-shadow: 0 0 4px rgba(17,86,128,0.3);
+}
+
+.chat-input button {
+  background: linear-gradient(135deg, #115680, #29a89a);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  margin-left: 10px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.chat-input button:hover {
+  background: linear-gradient(135deg, #29a89a, #115680);
+}
+
+.patient-avatar {
+  width: 400px;
+  height: auto;         /* maintain aspect ratio */
+  border-radius: 8px;   /* just slightly rounded corners */
+  object-fit: contain;
+}
+
+.history-layout {
+  display: flex;
+  gap: 20px;
+  height: 600px;
+}
+
+.history-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ✅ Findings Box (already modernized) */
+.history-notes {
+  flex: 0.8; /* smaller portion compared to chat */
+  display: flex;
+  flex-direction: column;
+  background: #fdfdfd;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.history-notes h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #115680;
+}
+
+.history-notes textarea {
+  flex: none;
+  min-height: 120px;      /* smaller height */
+  resize: vertical;       /* allow drag-resize */
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  margin-bottom: 12px;
+  background: #fff;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.history-notes textarea:focus {
+  border: 1px solid #115680;
+  box-shadow: 0 0 6px rgba(17,86,128,0.2);
+}
+
+#submitHistoryBtn {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #115680, #29a89a);
+  color: #fff;
+  padding: 10px 18px;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+#submitHistoryBtn:hover {
+  background: linear-gradient(135deg, #29a89a, #115680);
+}
+
+#submitHistoryBtn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.success-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.success-modal .modal-content {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  border-top: 6px solid #115680;
+  animation: slideIn 0.3s ease-out;
+}
+
+.success-modal .modal-content h2 {
+  margin: 0 0 12px;
+  color: #115680;
+}
+
+.success-modal .modal-content p {
+  color: #08213a;
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+.success-modal .modal-content button {
+  background: linear-gradient(135deg, #115680, #29a89a);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.success-modal .modal-content button:hover {
+  background: linear-gradient(135deg, #29a89a, #115680);
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.patient-info-card {
+  background: #fdfdfd;
+  border: 1px solid #ddd;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.patient-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 2px solid #eaeaea;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.info-box {
+  background: #fdfdfd;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.info-box h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 20px;   /* bigger section titles */
+  color: #115680;
+  border-bottom: 2px solid #29a89a;
+  padding-bottom: 6px;
+}
+
+.info-box p {
+  margin: 8px 0;
+  font-size: 16px;   /* bumped up */
+  color: #08213a;
+}
+
+.info-box small {
+  display: block;
+  font-size: 14px;   /* slightly larger */
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.badge {
+  background: #29a89a;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 14px;   /* bigger age badge */
+  margin-left: 6px;
+}
+
+.appt-badge {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 15px;   /* slightly larger */
+}
+
+.appt-badge.emergency { background: #e74c3c; color: #fff; }
+.appt-badge.routine { background: #2980b9; color: #fff; }
+.appt-badge.followup { background: #27ae60; color: #fff; }
+
+/* ===== Exam Findings Layout (Professional Look) ===== */
+.exam-layout {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr 1.6fr; /* left smaller, right bigger */
+  gap: 24px;
+  margin-top: 24px;
+}
+
+
+/* Card style shared across panels */
+.exam-tests, .exam-results, .exam-notes {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border: 1px solid #e5eaf0;
+  display: flex;
+  flex-direction: column;
+}
+
+.exam-tests h3,
+.exam-results h3,
+.exam-notes h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #115680;
+  border-bottom: 2px solid #2fc4b2;
+  padding-bottom: 6px;
+}
+
+/* Test selection dropdown */
+.exam-tests select {
+  padding: 12px;
+  font-size: 15px;
+  border: 1px solid #ccd6e0;
+  border-radius: 8px;
+  background: #f9fbfd;
+  color: #08213a;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.exam-tests select:focus {
+  border-color: #115680;
+  box-shadow: 0 0 6px rgba(17,86,128,0.2);
+  outline: none;
+}
+
+/* Exam results */
+.exam-results {
+  background: linear-gradient(to bottom right, #fdfdfd, #f7fbfc);
+}
+
+.exam-results p {
+  margin: 8px 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #08213a;
+}
+
+.exam-results strong {
+  color: #115680;
+}
+
+/* Notes area */
+.exam-notes textarea {
+  flex: 1;
+  min-height: 160px;
+  padding: 14px;
+  font-size: 15px;
+  border: 1px solid #ccd6e0;
+  border-radius: 10px;
+  background: #fdfdfd;
+  resize: vertical;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.exam-notes textarea:focus {
+  border: 1px solid #115680;
+  box-shadow: 0 0 6px rgba(17,86,128,0.2);
+  outline: none;
+}
+
+.exam-notes button {
+  margin-top: 14px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #115680, #29a89a);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.exam-notes button:hover {
+  background: linear-gradient(135deg, #29a89a, #115680);
+  transform: translateY(-2px);
+}
+
+/* Perform Test Button */
+#performTestBtn {
+  margin-top: 16px;
+  padding: 12px 22px;
+  background: linear-gradient(135deg, #115680, #29a89a);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(17, 86, 128, 0.25);
+}
+
+#performTestBtn:hover {
+  background: linear-gradient(135deg, #29a89a, #115680);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(17, 86, 128, 0.3);
+}
+
+#performTestBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(17, 86, 128, 0.2);
+}
+
+.exam-tests select optgroup {
+  font-weight: 600;
+  color: #115680;
+  background: #eef6fb;
+  padding: 4px;
+}
+
+.exam-image {
+  max-width: 100%;
+  margin: 12px 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.exam-image {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-top: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.test-result {
+  margin-bottom: 18px;
+  padding: 14px;
+  background: #f9fbfd;
+  border-left: 4px solid #115680;
+  border-radius: 8px;
+}
+
+/* ===== Modal for Enlarged Exam Images ===== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.8);
+}
+
+.modal-content {
+  display: block;
+  margin: 5% auto;
+  max-width: 80%;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.close {
+  position: absolute;
+  top: 20px; right: 35px;
+  color: #fff;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#caption {
+  margin: 20px auto;
+  width: 80%;
+  max-width: 600px;
+  text-align: center;
+  color: #fff;
+}
+
+#caption textarea {
+  width: 100%;
+  min-height: 100px;
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+#caption button {
+  margin-top: 10px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #115680, #29a89a);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ===== Ancillary Testing & Interpretation Layout ===== */
+.testing-layout {
+  display: grid;
+  grid-template-columns: 0.9fr 1.4fr 1.7fr; /* Left smaller, middle medium, right larger */
+  gap: 24px;
+  margin-top: 24px;
+}
+
+/* Card style panels */
+.testing-tests,
+.testing-results,
+.testing-interpretation {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border: 1px solid #e5eaf0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Headings */
+.testing-tests h3,
+.testing-results h3,
+.testing-interpretation h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #115680;
+  border-bottom: 2px solid #2fc4b2;
+  padding-bottom: 6px;
+}
+
+/* Dropdown */
+.testing-tests select {
+  padding: 12px;
+  font-size: 15px;
+  border: 1px solid #ccd6e0;
+  border-radius: 8px;
+  background: #f9fbfd;
+  color: #08213a;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.testing-tests select:focus {
+  border-color: #115680;
+  box-shadow: 0 0 6px rgba(17,86,128,0.2);
+  outline: none;
+}
+
+.testing-tests select optgroup {
+  font-weight: 600;
+  color: #115680;
+  background: #eef6fb;
+  padding: 4px;
+}
+
+/* ===== Modern Buttons (Perform + Submit) ===== */
+.perform-btn,
+.submit-btn {
+  margin-top: 16px;
+  padding: 12px 22px;
+  background: linear-gradient(135deg, #115680, #29a89a);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(17, 86, 128, 0.25);
+}
+
+.perform-btn:hover,
+.submit-btn:hover {
+  background: linear-gradient(135deg, #29a89a, #115680);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(17, 86, 128, 0.3);
+}
+
+.perform-btn:active,
+.submit-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(17, 86, 128, 0.2);
+}
+
+/* Test Results Panel */
+.testing-results {
+  background: linear-gradient(to bottom right, #fdfdfd, #f7fbfc);
+}
+
+.testing-results p {
+  margin: 8px 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #08213a;
+}
+
+.testing-results strong {
+  color: #115680;
+}
+
+.testing-image {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-top: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  cursor: pointer;
+}
+
+/* Interpretation Panel */
+.testing-interpretation {
+  background: linear-gradient(to bottom right, #ffffff, #f9fbfd);
+}
+
+.interp-box {
+  margin-bottom: 20px;
+  padding: 16px;
+  border-left: 4px solid #115680;
+  border-radius: 8px;
+  background: #f9fbfd;
+}
+
+.interp-box h4 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #115680;
+}
+
+.interp-box label {
+  display: block;
+  margin: 8px 0 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #08213a;
+}
+
+.interp-box input,
+.interp-box textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccd6e0;
+  border-radius: 8px;
+  background: #fff;
+  resize: vertical;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.interp-box input:focus,
+.interp-box textarea:focus {
+  border: 1px solid #115680;
+  box-shadow: 0 0 6px rgba(17,86,128,0.2);
+  outline: none;
+}
+
+.interp-box textarea {
+  min-height: 80px;
+}
+
+/* ===== Assessment & Plan Styling ===== */
+.assessment-plan-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 20px;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+/* Each row = assessment + plan side by side */
+.assessment-plan-grid .row {
+  display: grid;
+  grid-template-columns: 1fr 2fr; /* Assessment narrower, plan wider */
+  gap: 20px;
+  background: #ffffff;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* Items */
+.assessment-item,
+.plan-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.assessment-item label,
+.plan-item label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #08213a;
+}
+
+/* Inputs + textareas */
+.assessment-input,
+.plan-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #ccd6e0;
+  background: #f9fbfd;
+  font-size: 15px;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.assessment-input:focus,
+.plan-input:focus {
+  border: 1px solid #115680;
+  box-shadow: 0 0 6px rgba(17, 86, 128, 0.2);
+  outline: none;
+}
+
+.plan-input {
+  min-height: 80px;
+  resize: vertical;
+}
+/* ===== Assessment & Plan Rows ===== */
+.assessment-plan-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Equal halves */
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.assessment-item,
+.plan-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.assessment-item input,
+.plan-item textarea {
+  width: 100%;
+}
+
+
+
+/* ===== CPT Section Styling ===== */
+.cpt-section {
+  margin-top: 30px;
+  background: #ffffff;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.cpt-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #115680;
+  border-bottom: 2px solid #29a89a;
+  padding-bottom: 6px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.cpt-input-row {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+/* Styled CPT dropdown */
+.cpt-select {
+  flex: 1;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid #ccd6e0;
+  border-radius: 10px;
+  background: #f9fbfd;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cpt-select:focus {
+  border: 1px solid #115680;
+  box-shadow: 0 0 6px rgba(17,86,128,0.2);
+  outline: none;
+}
+
+/* ===== CPT Mapping Table ===== */
+#cpt-mapping {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 14px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+}
+
+#cpt-mapping th {
+  background: #115680;
+  color: #fff;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+#cpt-mapping td {
+  background: #ffffff;
+  border: 1px solid #e5eaf0;
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+}
+
+#cpt-mapping tr:nth-child(even) td {
+  background: #f9fbfd;
+}
+
+#cpt-mapping input[type="checkbox"] {
+  transform: scale(1.2);
+  cursor: pointer;
+  accent-color: #29a89a; /* modern green check */
+}
+
+.insurance-info {
+  background: #f9fbfd;
+  border: 1px solid #e5eaf0;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+}
+
+.insurance-info h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  color: #115680;
+  border-bottom: 2px solid #29a89a;
+  padding-bottom: 5px;
+}
+
+.insurance-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #08213a;
+}
+
+.insurance-info small {
+  display: block;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+
+
+/* ===== Submit Button ===== */
+#tab-assessment-plan .submit-btn {
+  margin-top: 25px;
+  padding: 12px 22px;
+  background: linear-gradient(135deg, #115680, #29a89a);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(17, 86, 128, 0.25);
+  transition: all 0.2s ease;
+  display: block;
+}
+
+#tab-assessment-plan .submit-btn:hover {
+  background: linear-gradient(135deg, #29a89a, #115680);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(17, 86, 128, 0.3);
+}
+
+/* ===== Submit Container ===== */
+.assessment-submit-container {
+  display: flex;
+  justify-content: flex-end;  /* push button to the right */
+  margin-top: auto;           /* pushes container to bottom of flex parent */
+  padding-top: 20px;          /* spacing above button */
+}
+/* ===== Unified Exam UI ===== */
+.exam-unified {
+  background: #f7fbff;
+  border: 1px solid #e5eaf0;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.exam-toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.exam-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+}
+
+.exam-card {
+  background: #fff;
+  border: 1px solid #e5eaf0;
+  border-left: 6px solid #115680;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.exam-card h4 {
+  margin: 0 0 6px;
+  color: #115680;
+}
+
+.exam-meta {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.exam-card p { margin: 4px 0; }
+.exam-card .img-row img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-top: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+}
+.exam-notes-input {
+  width: 100%;
+  min-height: 90px;
+  border: 1px solid #ccd6e0;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+  background: #fbfdff;
+  transition: border .2s, box-shadow .2s;
+  resize: vertical;
+}
+.exam-notes-input:focus {
+  border-color: #115680;
+  box-shadow: 0 0 6px rgba(17,86,128,.2);
+  outline: none;
+}
+
+.badge-required {
+  display: inline-block;
+  font-size: 11px;
+  background: #29a89a;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-left: 6px;
+}
+
+/* ===== Finalize layout: 3 columns + Performed Tests below ===== */
+#finalize-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+/* Performed Tests spans full width below */
+#finalize-tests {
+  grid-column: 1 / -1;
+}
+
+/* Card design */
+.finalize-section {
+  background: #fff;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* Headings */
+.finalize-section h3 {
+  margin: 0 0 10px;
+  color: #115680;
+  font-size: 17px;
+  font-weight: 700;
+  border-bottom: 2px solid #eaf3f9;
+  padding-bottom: 6px;
+}
+
+/* Text styling */
+.finalize-section p,
+.finalize-section li {
+  color: #08213a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.finalize-section ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.finalize-section ul li + li {
+  margin-top: 6px;
+}
+
+/* Title color */
+#tab-finalize > h2 {
+  margin-top: 0;
+  color: #115680;
+}
+
+/* Responsive stacking */
+@media (max-width: 1200px) {
+  #finalize-container { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 800px) {
+  #finalize-container { grid-template-columns: 1fr; }
+}
+
+/* PDF-friendly: avoid card splitting across pages */
+@media print {
+  .finalize-section { break-inside: avoid; }
+}
+
+
+
+
+
+
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar with Logo + Patient Info -->
+  <div class="ehr-topbar">
+    <img src="/logo.png" alt="OptoCase Logo">
+    <div class="patient-header" id="patientHeader">
+      Loading...
+      <span>DOB: --/--/----</span>
+    </div>
+  </div>
+
+  <div class="ehr-container">
+    <!-- Tabs -->
+<nav class="ehr-tabs">
+  <button class="active" onclick="showTab('patient')">Patient Info</button>
+  <button onclick="showTab('history')">History</button>
+  <button onclick="showTab('exam')">Exam Findings</button>
+  <button onclick="showTab('testing')">Testing & Interpretation</button>
+  <button onclick="showTab('assessment-plan')">Assessment & Plan</button>
+  <button class="finalize-btn" data-tab="finalize" onclick="showTab('finalize')">Finalize</button>
+</nav>
+
+
+    <!-- Content Panels -->
+    <section id="tab-patient" class="ehr-tab active">
+      <h2>Patient Info</h2>
+      <p>Loading...</p>
+    </section>
+
+    <section id="tab-history" class="ehr-tab">
+  <h2>History</h2>
+  <div class="history-layout">
+
+    <!-- Left: Chat -->
+    <div class="history-chat">
+      <div class="history-header">
+        <img id="patientAvatar" class="patient-avatar" src="" alt="Patient Avatar">
+      </div>
+      <div id="chatbox" class="chatbox">
+        <div id="chat-messages"></div>
+        <div class="chat-input">
+          <input type="text" id="doctorInput" placeholder="Ask the patient a question..." />
+          <button onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Student Notes -->
+    <div class="history-notes">
+      <h3>Your Findings</h3>
+      <textarea id="historyNotes" placeholder="Enter your notes here"></textarea>
+      <button id="submitHistoryBtn">Submit Findings</button>
+    </div>
+  </div>
+</section>
+
+
+
+    <section id="tab-exam" class="ehr-tab">
+  <h2>Exam</h2>
+  <div class="exam-layout">
+    <!-- Left side: test selector -->
+    <div class="exam-tests">
+      <h3>Choose a Test</h3>
+      <select id="testSelect">
+  <option value="">-- Select a test --</option>
+  
+  <optgroup label="Core Tests">
+    <option value="va">Visual Acuity</option>
+    <option value="iop">Intraocular Pressure</option>
+    <option value="pupils">Pupils</option>
+    <option value="eoms">EOMs</option>
+    <option value="fields">Confrontation Fields</option>
+  </optgroup>
+
+  <optgroup label="Anterior Segment">
+    <option value="anterior">Anterior Segment Findings</option>
+  </optgroup>
+
+  <optgroup label="Posterior Segment">
+    <option value="posterior">Posterior Segment Findings</option>
+  </optgroup>
+
+  <!-- ✅ Distractors -->
+  <optgroup label="Distractor Tests">
+    <option value="refraction">Refraction</option>
+    <option value="retinoscopy">Retinoscopy</option>
+    <option value="amsler">Amsler Grid</option>
+    <option value="keratometry">Keratometry</option>
+    <option value="colorvision">Color Vision</option>
+    <option value="npc">Near Point of Convergence</option>
+    <option value="accommodation">Accommodation Amplitude</option>
+    <option value="worth4dot">Worth 4 Dot</option>
+    <option value="stereopsis">Stereopsis Test</option>
+    <option value="phoria">Phoria Measurement</option>
+  </optgroup>
+</select>
+
+<button onclick="handleTestSelect()">Perform Test</button>
+
+    </div>
+
+    <!-- Middle & Right: Combined findings + notes -->
+<div class="exam-results" id="examResults">
+  <p>No tests performed yet.</p>
+</div>
+
+<div id="examCards" class="exam-grid"></div>
+
+  </div>
+</section>
+
+
+
+    <!-- ✅ Combined Testing & Interpretation -->
+<section id="tab-testing" class="ehr-tab">
+  <h2>Ancillary Testing & Interpretation</h2>
+  <div class="testing-layout">
+    
+    <!-- Left: Test selector -->
+    <div class="testing-tests card">
+      <h3>Select a Test</h3>
+      <select id="ancillarySelect" class="styled-select">
+        <option value="">-- Select a test --</option>
+        
+        <!-- ✅ Mixed list: students won’t know which are required -->
+        <option value="faf">Fundus Autofluorescence</option>
+        <option value="oct">OCT</option>
+        <option value="vf">Visual Field</option>
+        <option value="gonio">Gonioscopy</option>
+        <option value="topography">Corneal Topography</option>
+        <option value="ascan">A-Scan</option>
+        <option value="bscan">B-Scan</option>
+        <option value="pachy">Pachymetry</option>
+        <option value="fundusphoto">Fundus Photography</option>
+        <option value="mri">MRI</option>
+        <option value="ctscan">CT Scan</option>
+        <option value="ultrasoundabdomen">Abdominal Ultrasound</option>
+        <option value="ekg">EKG</option>
+        <option value="spirometry">Spirometry</option>
+        <option value="bloodpanel">Blood Panel</option>
+        <option value="allergytest">Allergy Testing</option>
+        <option value="hearingtest">Audiometry</option>
+        <option value="pulmonarytest">Pulmonary Function Test</option>
+        <option value="stresstest">Cardiac Stress Test</option>
+      </select>
+      <button id="performAncillaryBtn" class="perform-btn" onclick="handleAncillarySelect()">Perform Test</button>
+    </div>
+
+    <!-- Middle: Findings / Images -->
+    <div class="testing-results card" id="testingResults">
+      <p>No tests performed yet.</p>
+    </div>
+
+    <!-- Right: Interpretation -->
+    <div class="testing-interpretation card" id="interpretationPanel">
+      <h3>Interpretation</h3>
+      <!-- ✅ Dynamic interpretation boxes will be inserted here per test -->
+    </div>
+  </div>
+
+  <div style="margin-top:20px; text-align:right;">
+    <button class="perform-btn" onclick="submitFindings('testing')">Submit Testing & Interpretation</button>
+  </div>
+</section>
+
+
+
+
+
+
+    <section id="tab-assessment-plan" class="ehr-tab">
+  <h2>Assessment & Plan</h2>
+
+  <div class="assessment-plan-grid">
+    <!-- Row 1 -->
+    <div class="assessment-plan-row">
+      <div class="assessment-item">
+        <label>Assessment 1</label>
+        <input type="text" class="assessment-input" data-index="0" placeholder="Enter assessment...">
+      </div>
+      <div class="plan-item">
+        <label>Plan 1</label>
+        <textarea class="plan-input" data-index="0" placeholder="Enter plan..."></textarea>
+      </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="assessment-plan-row">
+      <div class="assessment-item">
+        <label>Assessment 2</label>
+        <input type="text" class="assessment-input" data-index="1" placeholder="Enter assessment...">
+      </div>
+      <div class="plan-item">
+        <label>Plan 2</label>
+        <textarea class="plan-input" data-index="1" placeholder="Enter plan..."></textarea>
+      </div>
+    </div>
+
+    <!-- Row 3 -->
+    <div class="assessment-plan-row">
+      <div class="assessment-item">
+        <label>Assessment 3</label>
+        <input type="text" class="assessment-input" data-index="2" placeholder="Enter assessment...">
+      </div>
+      <div class="plan-item">
+        <label>Plan 3</label>
+        <textarea class="plan-input" data-index="2" placeholder="Enter plan..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insurance Info -->
+<div class="insurance-info">
+  <h3>Insurance</h3>
+  <p><strong>Vision:</strong> <span id="insurance-vision">Loading...</span></p>
+  <small id="insurance-vision-info">None</small>
+  <hr>
+  <p><strong>Medical:</strong> <span id="insurance-medical">Loading...</span></p>
+  <small id="insurance-medical-info">None</small>
+</div>
+
+
+  <!-- CPT Codes -->
+<div class="cpt-section">
+  <h3>CPT Codes</h3>
+  <div class="cpt-input-row">
+    <select id="cptSelect" class="cpt-select">
+      <option value="">-- Select a CPT Code --</option>
+
+      <optgroup label="New Patient">
+        <option value="92002">92002 - Intermediate Examination - NP</option>
+        <option value="92004">92004 - Comprehensive Examination - NP</option>
+        <option value="99201">99201 - Evaluation & Manage Level 1</option>
+        <option value="99202">99202 - Evaluation & Manage Level 2</option>
+        <option value="99203">99203 - Evaluation & Manage Level 3</option>
+        <option value="99204">99204 - Evaluation & Manage Level 4</option>
+        <option value="99205">99205 - Evaluation & Manage Level 5</option>
+        <option value="S0620">S0620 - Routine Ophth Ex w/Refr</option>
+      </optgroup>
+
+      <optgroup label="Established Patient">
+        <option value="92012">92012 - Intermediate Examination - EP</option>
+        <option value="92014">92014 - Comprehensive Examination - EP</option>
+        <option value="99211">99211 - Evaluation & Manage Level 1</option>
+        <option value="99212">99212 - Evaluation & Manage Level 2</option>
+        <option value="99213">99213 - Evaluation & Manage Level 3</option>
+        <option value="99214">99214 - Evaluation & Manage Level 4</option>
+        <option value="99215">99215 - Evaluation & Manage Level 5</option>
+        <option value="S0621">S0621 - Routine Ophth Ex w/Refr</option>
+        <option value="90027">90027 - No Charge Office Visit</option>
+        <option value="NC">NC - Completion Of Exam No Charge</option>
+        <option value="92015">92015 - Refraction</option>
+      </optgroup>
+
+      <optgroup label="Contact Lens Services">
+        <option value="CLFU">CL Follow Up No Charge</option>
+        <option value="92310-1">92310 - CL Evaluation - Level 1 (Spherical Soft, Toric Soft)</option>
+        <option value="92310-2">92310 - CL Evaluation - Level 2 (Rigid Gas Permeable, Multifocal, Monovision)</option>
+        <option value="92310-FU1">92310 - CL Services (+F/U) Level 1</option>
+        <option value="92310-FU2">92310 - CL Services (+F/U) Level 2</option>
+        <option value="92310-IR1">92310 - CL Services (I/R + F/U) Level 1</option>
+        <option value="92310-IR2">92310 - CL Services (I/R + F/U) Level 2</option>
+        <option value="92310-K-EP">92310 - CL Fit 4 (Keratoconic) - EP</option>
+        <option value="92310-K-NP">92310 - CL Fit 4 (Keratoconic) - NP</option>
+        <option value="92311">92311 - CL Fitting For Aphakia - 1 Eye</option>
+        <option value="92312">92312 - CL Fitting For Aphakia - Both Eyes</option>
+        <option value="92313">92313 - CL Fitting - Corneoscleral Lens</option>
+        <option value="92325">92325 - Modification Of CL</option>
+        <option value="92326">92326 - Replacement Of CL</option>
+      </optgroup>
+
+      <optgroup label="Consultation - Initial">
+        <option value="99241">99241 - Initial Consult Level 1</option>
+        <option value="99242">99242 - Initial Consult Level 2</option>
+        <option value="99243">99243 - Initial Consult Level 3</option>
+        <option value="99244">99244 - Initial Consult Level 4</option>
+        <option value="99245">99245 - Initial Consult Level 5</option>
+      </optgroup>
+
+      <optgroup label="Domiciliary Visits">
+        <option value="99341">99341 - Home Visit (Prob Focus) -NP</option>
+        <option value="99342">99342 - Home Visit (Exp Prob Focus) -NP</option>
+        <option value="99343">99343 - Home Visit (Detailed) -NP</option>
+        <option value="99344">99344 - Home Visit (Comp W/ModCmplx)-NP</option>
+        <option value="99345">99345 - Home Visit (Comp W/Hi Cmplx)-NP</option>
+        <option value="99347">99347 - Home Visit(Prob Focus) -EP</option>
+        <option value="99348">99348 - Home Visit(Exp Prob Focus) -EP</option>
+        <option value="99349">99349 - Home Visit(Detailed) -EP</option>
+        <option value="99350">99350 - Home Visit(Comprehensive) -EP</option>
+      </optgroup>
+
+      <optgroup label="Prolonged Phys Services">
+        <option value="99354">99354 - Prolonged OV Svc 1st Hour</option>
+        <option value="99355">99355 - Prolonged OV Svc Each Addl 30</option>
+      </optgroup>
+
+      <optgroup label="Post Op Care">
+        <option value="66984">66984 - Post Op Cataract -RT</option>
+        <option value="6698L">6698L - Post Op Cataract -LT</option>
+        <option value="66821">66821 - Post Op YAG Laser -RT</option>
+        <option value="6682L">6682L - Post Op YAG Laser -LT</option>
+        <option value="66761">66761 - Post Op LPI (10 Days) -RT</option>
+        <option value="6676L">6676L - Post Op LPI (10 Days) -LT</option>
+        <option value="66999">66999 - Post Op Lasik -RT</option>
+        <option value="6699L">6699L - Post Op Lasik -LT</option>
+        <option value="99024">99024 - Post-Operative Care - N/C</option>
+        <option value="65855">65855 - Post Op Selective Laser Trabeculoplasty</option>
+      </optgroup>
+
+      <optgroup label="Lacrimal Drainage System">
+        <option value="687RL">687RL - Punctal Closure-Plug RT Lower</option>
+        <option value="687RU">687RU - Punctal Closure-Plug RT Upper</option>
+        <option value="687LL">687LL - Punctal Closure-Plug LT Lower</option>
+        <option value="687LU">687LU - Punctal Closure-Plug LT Upper</option>
+        <option value="68801">68801 - Dilate Puncta w/ or w/o Irrig</option>
+      </optgroup>
+
+      <optgroup label="Glaucoma">
+        <option value="92020">92020 - Gonioscopy</option>
+        <option value="92100">92100 - Serial Tonometry</option>
+        <option value="92145">92145 - Corneal Hysteresis</option>
+      </optgroup>
+
+      <optgroup label="Professional Services">
+        <option value="92060">92060 - Sensorimotor Exam</option>
+        <option value="92065">92065 - In-Office Vision Therapy</option>
+        <option value="92070">92070 - Fit & Supply Of Bandage CL</option>
+        <option value="92225">92225 - Extended Ophthalmoscopy-Init</option>
+        <option value="92226">92226 - Extended Ophthalmoscopy-Subseq</option>
+        <option value="76514">76514 - Corneal Pachymetry</option>
+      </optgroup>
+
+      <optgroup label="Visual Fields">
+        <option value="92081">92081 - VF Limited Gldmn 1 Isopter</option>
+        <option value="92082">92082 - VF Intermediate</option>
+        <option value="92083">92083 - VF Extended</option>
+      </optgroup>
+
+      <optgroup label="Photography">
+        <option value="92250">92250 - Fundus Photography</option>
+        <option value="92285">92285 - External Photography</option>
+      </optgroup>
+
+      <optgroup label="Imaging">
+        <option value="92025">92025 - Corneal Topography</option>
+        <option value="92132">92132 - OCT Imaging - Anterior Segment</option>
+        <option value="92133">92133 - OCT Imaging - Optic Nerve</option>
+        <option value="92134">92134 - OCT Imaging - Retina</option>
+        <option value="76512">76512 - Ultrasound B-Scan</option>
+        <option value="92230">92230 - Fluorescein Angiography</option>
+        <option value="92283">92283 - Color Vision Extended</option>
+        <option value="92270">92270 - Electro-Oculogram</option>
+        <option value="92275">92275 - Electroretinography</option>
+        <option value="95930">95930 - Visually Evoked Potential</option>
+        <option value="92286">92286 - Endothelial Cell Analysis</option>
+      </optgroup>
+
+      <optgroup label="Miscellaneous Services">
+        <option value="99070">99070 - Medical Supplies & Materials</option>
+        <option value="92062">92062 - Parent/Patient Conference</option>
+        <option value="92063">92063 - Visual Inform Processing-New</option>
+        <option value="92064">92064 - Visual Inform Processing-Est</option>
+        <option value="92284">92284 - Dark adaptation examination</option>
+        <option value="VTCHK">VTCHK - VT Progress Check</option>
+        <option value="RSPAT">RSPAT - Research/Study Visit</option>
+        <option value="67820">67820 - Epilation</option>
+        <option value="65222">65222 - Removal of foreign body, corneal, with slit lamp</option>
+      </optgroup>
+    </select>
+    <button type="button" class="submit-btn" onclick="addSelectedCPT()">+ Add Code</button>
+  </div>
+</div>
+
+
+  <!-- CPT Mapping -->
+  <div class="assessment-block">
+  <h3>CPT Billing</h3>
+  <table id="cpt-mapping">
+      <thead>
+        <tr>
+          <th>CPT Code</th>
+          <th>Assessment 1</th>
+          <th>Assessment 2</th>
+          <th>Assessment 3</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="assessment-submit-container">
+  <button class="submit-btn" onclick="submitFindings('assessment-plan')">
+    Submit Assessment & Plan
+  </button>
+</div>
+</section>
+
+<section id="tab-finalize" class="ehr-tab">
+  <h2>Finalize Case</h2>
+
+  <div id="finalize-container">
+    <!-- Top row: 3 columns -->
+    <div class="finalize-section" id="finalize-history">
+      <h3>History</h3>
+      <p>Loading...</p>
+    </div>
+
+    <div class="finalize-section" id="finalize-exam">
+      <h3>Exam</h3>
+      <p>Loading...</p>
+    </div>
+
+    <div class="finalize-section" id="finalize-assessment-plan">
+      <h3>Assessment &amp; Plan</h3>
+      <p>Loading...</p>
+    </div>
+
+    <!-- Bottom: Performed Tests full width -->
+    <div class="finalize-section" id="finalize-tests">
+      <h3>Performed Tests</h3>
+      <p>Loading...</p>
+    </div>
+  </div>
+
+  <div style="text-align:right; margin-top:20px;">
+    <button class="submit-btn" onclick="generatePDF()">📄 Generate PDF</button>
+  </div>
+</section>
+
+
+  </div>
+
+  <script>
+  function getCaseId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("id");
+  }
+
+  function calcAge(dob) {
+    if (!dob) return "N/A";
+    const birth = new Date(dob);
+    const diff = Date.now() - birth.getTime();
+    return new Date(diff).getUTCFullYear() - 1970;
+  }
+
+  function loadCase() {
+    const caseId = getCaseId();
+    if (!caseId) return;
+
+    fetch(`/api/cases/${caseId}`)
+      .then(res => res.json())
+      .then(c => {
+        // Format date/time
+        const formattedDate = c.appointment?.date
+          ? new Date(c.appointment.date).toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' })
+          : "N/A";
+
+        const formattedTime = c.appointment?.time
+          ? new Date(`1970-01-01T${c.appointment.time}`).toLocaleTimeString([], {
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true
+            })
+          : "N/A";
+
+        const formattedDOB = c.patient?.dob
+          ? new Date(c.patient.dob).toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' })
+          : "N/A";
+
+        const age = c.patient?.dob ? calcAge(c.patient.dob) : "N/A";
+
+        // ✅ Top bar
+        document.getElementById("patientHeader").innerHTML = `
+          ${c.appointment?.patient_name || "Unknown"}
+          <span>DOB: ${formattedDOB} (Age ${age})</span>
+        `;
+
+        // ✅ Load avatar into History tab
+const avatarEl = document.getElementById("patientAvatar");
+if (c.patient?.avatar) {
+  if (c.patient.avatar.startsWith("/uploads/")) {
+    avatarEl.src = c.patient.avatar; // already correct
+  } else if (c.patient.avatar.startsWith("uploads/")) {
+    avatarEl.src = `/${c.patient.avatar}`;
+  } else {
+    avatarEl.src = `/uploads/${c.patient.avatar}`;
+  }
+} else {
+  avatarEl.src = "/default-avatar.png";
+}
+// ✅ Update insurance info in Assessment & Plan tab
+if (document.getElementById("insurance-vision")) {
+  document.getElementById("insurance-vision").textContent =
+    c.patient?.vision_insurance || "N/A";
+}
+if (document.getElementById("insurance-vision-info")) {
+  document.getElementById("insurance-vision-info").textContent =
+    c.patient?.vision_insurance_info || "None";
+}
+if (document.getElementById("insurance-medical")) {
+  document.getElementById("insurance-medical").textContent =
+    c.patient?.medical_insurance || "N/A";
+}
+if (document.getElementById("insurance-medical-info")) {
+  document.getElementById("insurance-medical-info").textContent =
+    c.patient?.medical_insurance_info || "None";
+}
+
+
+
+        // ✅ Patient Info tab (split into 3 boxes)
+document.getElementById("tab-patient").innerHTML = `
+  <h2>Patient Info</h2>
+
+  <div class="info-box">
+    <h3>Patient</h3>
+    <p><strong>Name:</strong> ${c.appointment?.patient_name || "N/A"}</p>
+    <p><strong>DOB:</strong> ${formattedDOB} <span class="badge">Age ${age}</span></p>
+    <p><strong>Race:</strong> ${c.patient?.race || "N/A"}</p>
+    <p><strong>Address:</strong> ${c.patient?.address || "N/A"}</p>
+  </div>
+
+  <div class="info-box">
+    <h3>Appointment</h3>
+    <p><strong>Type:</strong> <span class="appt-badge ${c.appointment?.exam_type?.toLowerCase() || ""}">
+      ${c.appointment?.exam_type || "N/A"}
+    </span></p>
+    <p><strong>Date/Time:</strong> ${formattedDate} – ${formattedTime}</p>
+  </div>
+
+  <div class="info-box">
+    <h3>Insurance</h3>
+    <p><strong>Vision:</strong> ${c.patient?.vision_insurance || "N/A"}</p>
+    <small>${c.patient?.vision_insurance_info || "None"}</small>
+    <hr>
+    <p><strong>Medical:</strong> ${c.patient?.medical_insurance || "N/A"}</p>
+    <small>${c.patient?.medical_insurance_info || "None"}</small>
+  </div>
+`;
+
+// ✅ Core + distractor preliminary tests
+const preliminaryTests = [
+  { value: "va", label: "Visual Acuity" },
+  { value: "iop", label: "Intraocular Pressure" },
+  { value: "pupils", label: "Pupils" },
+  { value: "eoms", label: "EOMs" },
+  { value: "fields", label: "Confrontation Fields" },
+  { value: "refraction", label: "Refraction" },
+  { value: "retinoscopy", label: "Retinoscopy" },
+  { value: "amsler", label: "Amsler Grid" },
+  { value: "keratometry", label: "Keratometry" },
+  { value: "colorvision", label: "Color Vision" },
+  { value: "npc", label: "Near Point of Convergence" },
+  { value: "accommodation", label: "Accommodation Amplitude" },
+  { value: "worth4dot", label: "Worth 4 Dot" },
+  { value: "stereopsis", label: "Stereopsis Test" },
+  { value: "phoria", label: "Phoria Measurement" }
+];
+
+// ✅ Fisher–Yates shuffle
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// Shuffle now
+const shuffledPrelimOptions = shuffle(preliminaryTests)
+  .map(t => `<option value="${t.value}">${t.label}</option>`)
+  .join("");
+
+
+        // ✅ Exam tab (restored 3-column layout)
+caseExamData = c.exam || {}; // store professor's submitted findings for later use
+document.getElementById("tab-exam").innerHTML = `
+  <h2>Exam Findings</h2>
+  <div class="exam-layout">
+    <!-- Left: test selector -->
+    <div class="exam-tests">
+      <h3>Choose a Test</h3>
+      <select id="testSelect">
+        <option value="">-- Select a test --</option>
+
+        <optgroup label="Preliminary Tests">
+          ${shuffledPrelimOptions}
+        </optgroup>
+
+        <optgroup label="Anterior Segment">
+          <option value="anterior">Anterior Segment Findings</option>
+        </optgroup>
+
+        <optgroup label="Posterior Segment">
+          <option value="posterior">Posterior Segment Findings</option>
+        </optgroup>
+      </select>
+
+      <button id="performTestBtn" onclick="handleTestSelect()">Perform Test</button>
+    </div>
+
+    <!-- Middle: findings/results -->
+    <div class="exam-results" id="examResults">
+      <p>No tests performed yet.</p>
+    </div>
+
+    <!-- Right: notes -->
+    <div class="exam-notes">
+      <h3>Your Exam Notes</h3>
+      <textarea id="examNotes" placeholder="Summarize your findings here..."></textarea>
+      <button onclick="submitFindings('exam')">Submit Exam Notes</button>
+    </div>
+  </div>
+`;
+
+
+
+
+
+        // ✅ Combined Testing + Interpretation tab
+document.getElementById("tab-testing").innerHTML = `
+  <h2>Ancillary Testing & Interpretation</h2>
+  <div class="testing-layout">
+    
+    <!-- Left: Test selector -->
+    <div class="testing-tests card">
+      <h3>Select a Test</h3>
+      <select id="ancillarySelect" class="styled-select">
+        <option value="">-- Select a test --</option>
+
+        <!-- ✅ Mixed list (no labels for students to know which matter) -->
+        <option value="faf">Fundus Autofluorescence</option>
+        <option value="oct">OCT</option>
+        <option value="vf">Visual Field</option>
+        <option value="gonio">Gonioscopy</option>
+        <option value="topography">Corneal Topography</option>
+        <option value="ascan">A-Scan</option>
+        <option value="bscan">B-Scan</option>
+        <option value="pachy">Pachymetry</option>
+        <option value="fundusphoto">Fundus Photography</option>
+        <option value="mri">MRI</option>
+        <option value="ctscan">CT Scan</option>
+        <option value="ultrasoundabdomen">Abdominal Ultrasound</option>
+        <option value="ekg">EKG</option>
+        <option value="spirometry">Spirometry</option>
+        <option value="bloodpanel">Blood Panel</option>
+        <option value="allergytest">Allergy Testing</option>
+        <option value="hearingtest">Audiometry</option>
+        <option value="pulmonarytest">Pulmonary Function Test</option>
+        <option value="stresstest">Cardiac Stress Test</option>
+      </select>
+      <button id="performAncillaryBtn" class="perform-btn" onclick="handleAncillarySelect()">Perform Test</button>
+    </div>
+
+    <!-- Middle: Findings / Images -->
+    <div class="testing-results card" id="testingResults">
+      <p>No tests performed yet.</p>
+    </div>
+
+    <!-- Right: Interpretation -->
+    <div class="testing-interpretation card" id="interpretationPanel">
+      <h3>Interpretation</h3>
+      <!-- ✅ Dynamic interpretation boxes will be inserted here -->
+    </div>
+  </div>
+
+  <div style="margin-top:20px; text-align:right;">
+    <button class="perform-btn" onclick="submitFindings('testing')">Submit Testing & Interpretation</button>
+  </div>
+`;
+
+
+
+        // ✅ Init History after data loads
+        initHistory(c);
+      })
+      .catch(err => console.error("❌ Error loading case:", err));
+  }
+
+  // ===== History Chat Logic =====
+let historyData = {};
+let caseExamData = {};   // loaded from professor’s case
+
+// Keep exam and testing selections separate
+let selectedExamTests = new Set();       // for Exam Findings tab
+let selectedAncillaryTests = new Set();  // for Testing & Interpretation tab
+
+
+
+  const fallbackReplies = [
+    "Hmm, I’m not sure how to answer that.",
+    "I don’t really know about that.",
+    "That’s not something I’ve thought about.",
+    "I don’t have an answer for that — maybe ask something else."
+  ];
+  function randomFallback() {
+    return fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+  }
+
+  // ✅ Map of history fields to keyword variants
+const historyKeywords = {
+  chief_complaint: [
+    "chief", "why", "reason", "what brings", "bring", "brought", 
+    "main concern", "reason for visit", "what’s going on", 
+    "what’s wrong", "what’s bothering", "problem today", 
+    "symptom", "issue", "complaint"
+  ],
+
+  hpi: [
+    "hpi", "how long", "when", "started", "present illness", 
+    "since", "duration", "timeframe", "timeline", "onset", 
+    "progression", "getting worse", "getting better", 
+    "describe it", "tell me more about it", "story"
+  ],
+
+  poh: [
+    "ocular", "eye history", "past eye", "eye surgery", 
+    "glasses", "contacts", "lasik", "cataract surgery", 
+    "retina", "eye problems", "vision history", 
+    "previous eye conditions", "previous eye disease", 
+    "previous issues with eyes", "strabismus", "lazy eye"
+  ],
+
+  pmh: [
+    "medical", "health problems", "conditions", "diabetes", 
+    "blood pressure", "hypertension", "heart disease", 
+    "stroke", "cholesterol", "cancer", "thyroid", 
+    "lung disease", "asthma", "systemic", "general health", 
+    "other illnesses", "chronic conditions", "previous hospitalizations"
+  ],
+
+  meds: [
+    "meds", "medications", "medicine", "drugs", "pills", 
+    "take regularly", "prescriptions", "drops", "eye drops", 
+    "supplements", "vitamins", "current medications", 
+    "what are you taking", "pharmacy", "inhaler", "shots"
+  ],
+
+  allergies: [
+    "allergy", "allergies", "allergic", "reaction", 
+    "sensitivity", "rash", "hives", "penicillin", 
+    "sulfa", "latex", "seasonal allergies", "drug allergies", 
+    "food allergies", "allergic reactions", "immune reaction"
+  ],
+
+  fhx: [
+    "family", "genetic", "hereditary", "relatives", 
+    "parents", "siblings", "anyone in your family", 
+    "family history", "mom", "dad", "brother", "sister", 
+    "kids", "grandparents", "blindness in family", 
+    "diabetes in family", "heart disease in family"
+  ],
+
+  social_history: [
+    "social", "smoke", "drink", "alcohol", "job", "work", 
+    "occupation", "lifestyle", "hobbies", "recreational drugs", 
+    "living situation", "exercise", "do you drive", "pets", 
+    "married", "single", "kids", "school", "college", 
+    "travel", "social habits", "daily routine"
+  ]
+};
+
+
+// ✅ Smarter findResponse
+function findResponse(question) {
+  question = question.toLowerCase().replace(/[^\w\s]/gi, ""); // normalize
+
+  for (const field in historyKeywords) {
+    if (historyKeywords[field].some(kw => question.includes(kw))) {
+      return historyData[field] || randomFallback();
+    }
+  }
+
+  return randomFallback();
+}
+
+
+
+  function match(question, keywords) {
+    return keywords.some(kw => question.includes(kw));
+  }
+
+  function initHistory(c) {
+    historyData = c.history || {};
+    document.querySelectorAll(".ehr-tabs button").forEach(btn => {
+      if (!btn.textContent.includes("Patient") && !btn.textContent.includes("History")) {
+        btn.classList.add("locked");
+      }
+    });
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("doctorInput");
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    addMessage("doctor", msg);
+    input.value = "";
+
+    let response = findResponse(msg.toLowerCase());
+    addMessage("patient", response);
+
+  }
+
+
+  
+
+// ✅ Save student notes for grading later
+function submitFindings(section) {
+  const caseId = getCaseId();
+  let notes = "";
+
+  // pick the right textarea based on section
+  if (section === "history") {
+    notes = document.getElementById("historyNotes").value;
+
+    return fetch("/api/student-notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        case_id: caseId,
+        section: "history",
+        notes: notes
+      })
+    })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Save failed");
+
+        unlockTab("exam");
+        document.getElementById("submitHistoryBtn").disabled = true;
+
+        // ✅ History → Exam
+        showSuccessModal(
+          "✅ History saved!",
+          "Continue on to the Exam portion.",
+          () => showTab("exam")
+        );
+      })
+      .catch(err => {
+        console.error("❌ Error saving history:", err);
+        alert("❌ Error: " + err.message);
+      });
+  }
+
+  if (section === "exam") {
+    notes = document.getElementById("examNotes").value;
+
+    return fetch("/api/student-notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        case_id: caseId,
+        section: "exam",
+        notes: notes
+      })
+    })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Save failed");
+
+        unlockTab("testing");
+        document.querySelector("#tab-exam .exam-notes button").disabled = true;
+
+        // ✅ Exam → Testing
+        showSuccessModal(
+          "✅ Exam notes saved!",
+          "Continue on to the Testing & Interpretation portion.",
+          () => showTab("testing")
+        );
+      })
+      .catch(err => {
+        console.error("❌ Error saving exam notes:", err);
+        alert("❌ Error: " + err.message);
+      });
+  }
+
+  if (section === "testing") {
+  // ✅ Gather all dynamic interpretation boxes with new class selectors
+  const interpBoxes = document.querySelectorAll("#interpretationPanel .interp-box");
+  let interpretations = [];
+
+  interpBoxes.forEach(box => {
+    interpretations.push({
+      test_type: box.querySelector("h4")?.innerText.replace(" Interpretation", "") || "Unknown",
+      date: box.querySelector(".interp-date")?.value || null,
+      reason: box.querySelector(".interp-reason")?.value || null,
+      cooperation: box.querySelector(".interp-cooperation")?.value || null,
+      findings_od: box.querySelector(".interp-od")?.value || null,
+      findings_os: box.querySelector(".interp-os")?.value || null
+    });
+  });
+
+  return fetch("/api/student-notes", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      case_id: caseId,
+      section: "testing",
+      interpretations: interpretations // ✅ structured array
+    })
+  })
+    .then(async res => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Save failed");
+
+      unlockTab("assessment-plan");
+      document.querySelector("#tab-testing button.perform-btn").disabled = true;
+
+      // ✅ Testing → Assessment
+      showSuccessModal(
+        "✅ Testing & Interpretation saved!",
+        "Continue on to the Assessment & Plan portion.",
+        () => showTab("assessment-plan")
+      );
+    })
+    .catch(err => {
+      console.error("❌ Error saving interpretations:", err);
+      alert("❌ Error: " + err.message);
+    });
+}
+
+// ⬇️ ADD THIS NEW BRANCH HERE
+if (section === "assessment-plan") {
+  const assessments = Array.from(document.querySelectorAll(".assessment-input")).map((a, i) => ({
+    icd10_code: a.value.trim(),
+    plan: document.querySelector(`.plan-input[data-index="${i}"]`).value.trim()
+  })).filter(a => a.icd10_code || a.plan); // only save filled rows
+
+  const cptRows = Array.from(document.querySelectorAll("#cpt-mapping tbody tr"));
+
+  // Step 1: Save assessments and get IDs back
+  return fetch("/api/assessment-plan", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ case_id: caseId, assessments })
+  })
+    .then(async res => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Save failed");
+
+      const insertedIds = data.insertedIds; // ✅ array of assessment_plan IDs
+
+      // Update CPT checkboxes to store DB IDs instead of 0/1/2
+      document.querySelectorAll("#cpt-mapping tbody tr").forEach(row => {
+        row.querySelectorAll("input[type='checkbox']").forEach((cb, i) => {
+          if (insertedIds[i]) {
+            cb.value = insertedIds[i]; // replace index with DB ID
+          }
+        });
+      });
+
+      // Build CPT codes using DB IDs now
+      const cptCodes = cptRows.map(row => {
+        const code = row.querySelector("td strong").innerText.split(" ")[0];
+        const appliesTo = Array.from(row.querySelectorAll("input:checked"))
+          .map(cb => cb.value) // ✅ now DB IDs
+          .filter(Boolean);
+        return { code, applies_to: appliesTo };
+      });
+
+      // Step 2: Save CPT codes with real assessment_plan IDs
+      return fetch("/api/assessment-plan-cpt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ case_id: caseId, cpt_codes: cptCodes })
+      });
+    })
+    .then(async res => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "CPT save failed");
+
+      document.querySelector("#tab-assessment-plan button.submit-btn").disabled = true;
+
+      showSuccessModal(
+  "✅ Assessment & Plan saved!",
+  "Continue on to Finalize the case.",
+  () => {
+    unlockTab("finalize");
+    showTab("finalize");
+  }
+);
+
+    })
+    .catch(err => {
+      console.error("❌ Error saving Assessment & Plan:", err);
+      alert("❌ Error: " + err.message);
+    });
+}
+
+
+
+
+
+}
+
+
+function addMessage(role, text) {
+  const chat = document.getElementById("chat-messages");
+  const div = document.createElement("div");
+  div.className = `chat-message ${role}`;
+  div.innerText = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function unlockTab(tabName) {
+  const btn = Array.from(document.querySelectorAll(".ehr-tabs button"))
+    .find(b => b.getAttribute("onclick")?.includes(tabName));
+  if (btn) btn.classList.remove("locked");
+}
+
+// ===== Tabs =====
+function showTab(tab) {
+  // Hide all tabs
+  document.querySelectorAll('.ehr-tab').forEach(el => el.classList.remove('active'));
+  // Unhighlight all tab buttons
+  document.querySelectorAll('.ehr-tabs button').forEach(el => el.classList.remove('active'));
+
+  // Activate the selected tab content
+  const tabContent = document.getElementById('tab-' + tab);
+  if (tabContent) tabContent.classList.add('active');
+
+  // Activate the matching tab button
+  const btn = Array.from(document.querySelectorAll('.ehr-tabs button'))
+    .find(b => b.getAttribute("onclick")?.includes(tab));
+  if (btn) btn.classList.add('active');
+
+  // ✅ When the "Finalize" tab becomes active, load its data
+  if (tab === 'finalize') {
+    const caseId = getCaseId(); // must already exist in your file
+    if (caseId) {
+      loadFinalize(caseId);
+    } else {
+      console.warn("⚠️ No case ID found for Finalize tab.");
+    }
+  }
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("submitHistoryBtn");
+  if (btn) {
+    btn.addEventListener("click", () => submitFindings("history"));
+  }
+});
+
+function showSuccessModal(title, message, onContinue) {
+  // Remove any existing modal so duplicates don’t pile up
+  const existing = document.querySelector(".success-modal");
+  if (existing) existing.remove();
+
+  // Create modal container
+  const modal = document.createElement("div");
+  modal.className = "success-modal";
+  modal.innerHTML = `
+    <div class="modal-content">
+      <h2>${title}</h2>
+      <p>${message}</p>
+      <button id="continueBtn">Continue</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  // Hook up button click
+  document.getElementById("continueBtn").onclick = () => {
+    modal.remove();
+    if (onContinue) onContinue(); // e.g., switch to Exam tab
+  };
+}
+
+// Keep track of selected tests
+function handleTestSelect() {
+  const select = document.getElementById("testSelect");
+  const testName = select.value;
+
+  if (testName && !selectedExamTests.has(testName)) {
+    console.log("➡️ handleTestSelect triggered for:", testName);
+    performTest(testName);
+    selectedExamTests.add(testName);
+
+    // disable this test in dropdown
+    select.querySelector(`option[value="${testName}"]`).disabled = true;
+    select.value = "";
+
+    // ✅ Add this line to display the exam card
+    renderExamCard(testName, "Findings loaded...");
+  }
+}
+
+
+
+function performTest(testName) {
+  console.log("🟢 performTest running for:", testName, caseExamData);
+
+  const examResults = document.getElementById("examResults");
+  const examNotes = document.getElementById("examNotes");
+
+  let findings = "";
+
+
+  switch (testName) {
+    case "va":
+      findings = `
+        <h3>Visual Acuity</h3>
+        <p><strong>Type:</strong> ${caseExamData.va_type || "❌ No data"}</p>
+        <p><strong>OD:</strong> ${caseExamData.va_od || "❌ No data"}</p>
+        <p><strong>OS:</strong> ${caseExamData.va_os || "❌ No data"}</p>
+      `;
+      break;
+
+    case "iop":
+      findings = `
+        <h3>Intraocular Pressure</h3>
+        <p><strong>Method:</strong> ${caseExamData.iop_method || "❌ No data"}</p>
+        <p><strong>OD:</strong> ${caseExamData.iop_od || "❌ No data"}</p>
+        <p><strong>OS:</strong> ${caseExamData.iop_os || "❌ No data"}</p>
+      `;
+      break;
+
+    case "pupils":
+      findings = `<h3>Pupils</h3><p>${caseExamData.pupils || "❌ No data"}</p>`;
+      break;
+
+    case "eoms":
+      findings = `<h3>EOMs</h3><p>${caseExamData.eoms || "❌ No data"}</p>`;
+      break;
+
+    case "fields":
+      findings = `<h3>Confrontation Fields</h3><p>${caseExamData.fields || "❌ No data"}</p>`;
+      break;
+
+    case "anterior":
+      findings = `<h3>Anterior Segment</h3>`;
+      if (caseExamData.anterior_image) {
+        const imgs = caseExamData.anterior_image.split(",");
+        imgs.forEach(img => {
+          findings += `<img src="/uploads/${img}" class="exam-image" 
+                         alt="Anterior Segment" onclick="openModal('/uploads/${img}')">`;
+        });
+        if (!caseExamData.od_adnexa && !caseExamData.os_adnexa &&
+            !caseExamData.od_cornea && !caseExamData.os_cornea &&
+            !caseExamData.od_lens && !caseExamData.os_lens) {
+          openModal(`/uploads/${imgs[0]}`);
+        }
+      }
+      if (caseExamData.od_adnexa || caseExamData.os_adnexa) {
+        findings += `<p><strong>Adnexa OD:</strong> ${caseExamData.od_adnexa || "❌ No data"} | 
+                     <strong>OS:</strong> ${caseExamData.os_adnexa || "❌ No data"}</p>`;
+      }
+      if (caseExamData.od_lids_lashes || caseExamData.os_lids_lashes) {
+        findings += `<p><strong>Lids/Lashes OD:</strong> ${caseExamData.od_lids_lashes || "❌ No data"} | 
+                     <strong>OS:</strong> ${caseExamData.os_lids_lashes || "❌ No data"}</p>`;
+      }
+      if (caseExamData.od_conjunctiva || caseExamData.os_conjunctiva) {
+        findings += `<p><strong>Conjunctiva OD:</strong> ${caseExamData.od_conjunctiva || "❌ No data"} | 
+                     <strong>OS:</strong> ${caseExamData.os_conjunctiva || "❌ No data"}</p>`;
+      }
+      if (caseExamData.od_cornea || caseExamData.os_cornea) {
+        findings += `<p><strong>Cornea OD:</strong> ${caseExamData.od_cornea || "❌ No data"} | 
+                     <strong>OS:</strong> ${caseExamData.os_cornea || "❌ No data"}</p>`;
+      }
+      if (caseExamData.od_anterior_chamber || caseExamData.os_anterior_chamber) {
+        findings += `<p><strong>Anterior Chamber OD:</strong> ${caseExamData.od_anterior_chamber || "❌ No data"} | 
+                     <strong>OS:</strong> ${caseExamData.os_anterior_chamber || "❌ No data"}</p>`;
+      }
+      if (caseExamData.od_iris || caseExamData.os_iris) {
+        findings += `<p><strong>Iris OD:</strong> ${caseExamData.od_iris || "❌ No data"} | 
+                     <strong>OS:</strong> ${caseExamData.os_iris || "❌ No data"}</p>`;
+      }
+      if (caseExamData.od_lens || caseExamData.os_lens) {
+        findings += `<p><strong>Lens OD:</strong> ${caseExamData.od_lens || "❌ No data"} | 
+                     <strong>OS:</strong> ${caseExamData.os_lens || "❌ No data"}</p>`;
+      }
+      if (caseExamData.od_anterior_vitreous || caseExamData.os_anterior_vitreous) {
+        findings += `<p><strong>Anterior Vitreous OD:</strong> ${caseExamData.od_anterior_vitreous || "❌ No data"} | 
+                     <strong>OS:</strong> ${caseExamData.os_anterior_vitreous || "❌ No data"}</p>`;
+      }
+      break;
+
+    case "posterior":
+  findings = `<h3>Posterior Segment</h3>`;
+
+  if (caseExamData.posterior_image) {
+    const imgs = caseExamData.posterior_image.split(",");
+    imgs.forEach(img => {
+      findings += `<img src="/uploads/${img}" 
+                        class="exam-image" 
+                        alt="Posterior Segment" 
+                        onclick="openModal('/uploads/${img}')">`;
+    });
+
+    // Auto-open first image if no textual findings exist
+    if (!caseExamData.od_disc && !caseExamData.os_disc &&
+        !caseExamData.od_macula && !caseExamData.os_macula &&
+        !caseExamData.od_vessels && !caseExamData.os_vessels) {
+      openModal(`/uploads/${imgs[0]}`);
+    }
+  } else {
+    findings += `<p>❌ No posterior image found for this case</p>`;
+  }
+
+  if (caseExamData.od_posterior_vitreous || caseExamData.os_posterior_vitreous) {
+    findings += `<p><strong>Posterior Vitreous OD:</strong> ${caseExamData.od_posterior_vitreous || "❌ No data"} | 
+                 <strong>OS:</strong> ${caseExamData.os_posterior_vitreous || "❌ No data"}</p>`;
+  }
+  if (caseExamData.od_cd || caseExamData.os_cd) {
+    findings += `<p><strong>C/D Ratio OD:</strong> ${caseExamData.od_cd || "❌ No data"} | 
+                 <strong>OS:</strong> ${caseExamData.os_cd || "❌ No data"}</p>`;
+  }
+  if (caseExamData.od_disc || caseExamData.os_disc) {
+    findings += `<p><strong>Disc OD:</strong> ${caseExamData.od_disc || "❌ No data"} | 
+                 <strong>OS:</strong> ${caseExamData.os_disc || "❌ No data"}</p>`;
+  }
+  if (caseExamData.od_macula || caseExamData.os_macula) {
+    findings += `<p><strong>Macula OD:</strong> ${caseExamData.od_macula || "❌ No data"} | 
+                 <strong>OS:</strong> ${caseExamData.os_macula || "❌ No data"}</p>`;
+  }
+  if (caseExamData.od_vessels || caseExamData.os_vessels) {
+    findings += `<p><strong>Vessels OD:</strong> ${caseExamData.od_vessels || "❌ No data"} | 
+                 <strong>OS:</strong> ${caseExamData.os_vessels || "❌ No data"}</p>`;
+  }
+  if (caseExamData.od_periphery || caseExamData.os_periphery) {
+    findings += `<p><strong>Periphery OD:</strong> ${caseExamData.od_periphery || "❌ No data"} | 
+                 <strong>OS:</strong> ${caseExamData.os_periphery || "❌ No data"}</p>`;
+  }
+  break;
+
+
+    // Distractors
+    case "refraction":
+    case "retinoscopy":
+    case "amsler":
+    case "keratometry":
+    case "colorvision":
+    case "npc":
+    case "accommodation":
+    case "worth4dot":
+    case "stereopsis":
+    case "phoria":
+      findings = `<p>❌ ${testName.toUpperCase()} was not performed / not necessary for this encounter.</p>`;
+      break;
+  }
+
+  // Append results
+  const wrapper = document.createElement("div");
+  wrapper.classList.add("test-result");
+  wrapper.innerHTML = findings;
+  examResults.appendChild(wrapper);
+  recordPerformedTest('exam', testName);
+
+
+  // Append to notes
+  if (findings.includes("not performed")) {
+    examNotes.value += `\n=== ${testName.toUpperCase()} ===\n❌ Not performed / not necessary\n`;
+  } else {
+    examNotes.value += `\n=== ${testName.toUpperCase()} ===\n${wrapper.innerText}\n`;
+  }
+}
+
+
+// ===== Ancillary Testing & Interpretation =====
+function handleAncillarySelect() {
+  const select = document.getElementById("ancillarySelect");
+  const testName = select.value;
+
+  if (testName && !selectedAncillaryTests.has(testName)) {
+    performAncillaryTest(testName);
+    selectedAncillaryTests.add(testName);
+
+    select.querySelector(`option[value="${testName}"]`).disabled = true;
+    select.value = "";
+  }
+}
+
+
+function performAncillaryTest(testName) {
+  const testingResults = document.getElementById("testingResults");
+  const interpretationPanel = document.getElementById("interpretationPanel");
+
+  let findings = "";
+  let needsInterpretation = false;
+
+  switch (testName) {
+    case "fundusphoto":
+      findings = `<h3>Fundus Photography</h3>`;
+      if (caseExamData.fundus_photo_images) {
+        const imgs = caseExamData.fundus_photo_images.split(",");
+        imgs.forEach(img => {
+          findings += `<img src="/uploads/${img}" class="testing-image" onclick="openModal('/uploads/${img}')">`;
+        });
+        findings += `<p>Status: ✅ Performed</p>`;
+        needsInterpretation = true;
+      } else {
+        findings += `<p>Status: ❌ Not performed</p>`;
+      }
+      break;
+
+    case "oct":
+      findings = `<h3>OCT</h3>`;
+      if (caseExamData.oct_images) {
+        const imgs = caseExamData.oct_images.split(",");
+        imgs.forEach(img => {
+          findings += `<img src="/uploads/${img}" class="testing-image" onclick="openModal('/uploads/${img}')">`;
+        });
+        findings += `<p>Status: ✅ Performed</p>`;
+        needsInterpretation = true;
+      } else {
+        findings += `<p>Status: ❌ Not performed</p>`;
+      }
+      break;
+
+    case "vf":
+      findings = `<h3>Visual Field</h3>`;
+      if (caseExamData.vf_images) {
+        const imgs = caseExamData.vf_images.split(",");
+        imgs.forEach(img => {
+          findings += `<img src="/uploads/${img}" class="testing-image" onclick="openModal('/uploads/${img}')">`;
+        });
+        findings += `<p>Status: ✅ Performed</p>`;
+        needsInterpretation = true;
+      } else {
+        findings += `<p>Status: ❌ Not performed</p>`;
+      }
+      break;
+
+    case "faf":
+    case "gonio":
+    case "topography":
+    case "ascan":
+    case "bscan":
+    case "pachy":
+      findings = `<h3>${testName.toUpperCase()}</h3><p>Status: ⚠️ Contraindicated</p>`;
+      break;
+
+    default:
+      findings = `<h3>${testName.toUpperCase()}</h3><p>Status: ❌ Not necessary</p>`;
+  }
+
+  // Append to results
+  const wrapper = document.createElement("div");
+  wrapper.classList.add("test-result");
+  wrapper.innerHTML = findings;
+  testingResults.appendChild(wrapper);
+  recordPerformedTest('ancillary', testName);
+
+
+  // Add interpretation panel if needed
+  if (needsInterpretation) {
+    addInterpretationBox(testName, interpretationPanel);
+  }
+}
+
+function addInterpretationBox(testName, panel) {
+  const box = document.createElement("div");
+  box.classList.add("interp-box");
+
+  box.innerHTML = `
+    <h4>${testName.toUpperCase()} Interpretation</h4>
+    <label>Date:</label>
+<input type="date" class="interp-date" value="${new Date().toISOString().split('T')[0]}">
+    <label>Reason:</label>
+    <input type="text" class="interp-reason">
+    <label>Cooperation / Reliability:</label>
+    <input type="text" class="interp-cooperation">
+    <label>Findings OD:</label>
+    <textarea class="interp-od"></textarea>
+    <label>Findings OS:</label>
+    <textarea class="interp-os"></textarea>
+  `;
+
+  panel.appendChild(box);
+}
+
+
+function recordPerformedTest(kind, testName) {
+    const caseId = getCaseId();
+    fetch('/api/performed-tests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        case_id: caseId,
+        kind,          // "exam" | "ancillary"
+        test: testName // e.g., "va", "posterior", "oct"
+      })
+    }).catch(() => {}); // fire-and-forget
+  }
+
+// ===== Modal Logic for Exam Images =====
+function openModal(imgSrc) {
+  document.getElementById("imageModal").style.display = "block";
+  document.getElementById("modalImg").src = imgSrc;
+  document.getElementById("modalNotes").value = ""; // reset notes each time
+}
+
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+
+function saveModalNotes() {
+  const notes = document.getElementById("modalNotes").value.trim();
+  const examNotes = document.getElementById("examNotes");
+
+  if (!examNotes) {
+    alert("❌ Could not find Exam Notes box.");
+    return;
+  }
+
+  if (notes) {
+    examNotes.value += `\n[Image Findings] ${notes}`;
+  } else {
+    alert("⚠️ Please enter findings before saving.");
+  }
+
+  closeModal();
+}
+
+function addSelectedCPT() {
+  const select = document.getElementById("cptSelect");
+  const code = select.value;
+  const label = select.options[select.selectedIndex]?.text;
+
+  if (!code) return alert("⚠️ Please select a CPT code first.");
+
+  // Check if it’s already in the table
+  const existing = document.querySelector(`#cpt-mapping tbody tr[data-code="${code}"]`);
+  if (existing) {
+    alert("⚠️ This CPT code is already added.");
+    return;
+  }
+
+  // Create row
+  const tbody = document.querySelector("#cpt-mapping tbody");
+  const row = document.createElement("tr");
+  row.setAttribute("data-code", code);
+
+  row.innerHTML = `
+    <td><strong>${code}</strong><br><small>${label}</small></td>
+    <td><input type="checkbox" value="0"></td>
+    <td><input type="checkbox" value="1"></td>
+    <td><input type="checkbox" value="2"></td>
+  `;
+
+  tbody.appendChild(row);
+
+  // Reset dropdown
+  select.value = "";
+}
+
+function summarizeExamTest(testName) {
+  // Uses caseExamData (already set in loadCase)
+  switch (testName) {
+    case 'va':
+      return `Type: ${caseExamData.va_type || '—'}, OD: ${caseExamData.va_od || '—'}, OS: ${caseExamData.va_os || '—'}`;
+    case 'iop':
+      return `Method: ${caseExamData.iop_method || '—'}, OD: ${caseExamData.iop_od || '—'}, OS: ${caseExamData.iop_os || '—'}`;
+    case 'pupils':
+      return caseExamData.pupils || '—';
+    case 'eoms':
+      return caseExamData.eoms || '—';
+    case 'fields':
+      return caseExamData.fields || '—';
+    case 'anterior':
+      return 'See anterior segment images/findings above.';
+    case 'posterior':
+      return 'See posterior segment images/findings above.';
+    default:
+      return 'Not performed / not necessary';
+  }
+}
+
+
+function loadFinalize(caseId) {
+  // ===== Performed Tests (from DB) =====
+  fetch(`/api/performed-tests?case_id=${caseId}`)
+    .then(res => res.json())
+    .then(performed => {
+      const box = document.getElementById('finalize-tests');
+
+      // Fallback to session memory if API empty/missing
+      const fallbackExam = Array.from(selectedExamTests || []);
+      const fallbackAnc = Array.from(selectedAncillaryTests || []);
+
+      const examTests = (performed?.filter?.(t => t.kind === 'exam').map(t => t.test) || fallbackExam);
+      const ancTests  = (performed?.filter?.(t => t.kind === 'ancillary').map(t => t.test) || fallbackAnc);
+
+      const examListHTML = examTests.length
+        ? `<ul>${examTests.map(t => `<li><strong>${t.toUpperCase()}</strong> — ${summarizeExamTest(t)}</li>`).join('')}</ul>`
+        : '<p>No exam tests recorded.</p>';
+
+      const ancillaryListHTML = ancTests.length
+        ? `<ul id="finalize-ancillary-list">${ancTests.map(t => `<li data-test="${t}"><strong>${t.toUpperCase()}</strong> — Performed</li>`).join('')}</ul>`
+        : '<p>No ancillary tests recorded.</p>';
+
+      box.innerHTML = `
+        <h3>Performed Tests</h3>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+          <div>
+            <h4 style="margin:0 0 6px;">Exam</h4>
+            ${examListHTML}
+          </div>
+          <div>
+            <h4 style="margin:0 0 6px;">Ancillary</h4>
+            ${ancillaryListHTML}
+          </div>
+        </div>
+      `;
+    })
+    .catch(() => {
+      const box = document.getElementById('finalize-tests');
+      box.innerHTML = '<h3>Performed Tests</h3><p>Unable to load performed tests.</p>';
+    });
+
+  // ===== History (notes) =====
+  fetch(`/api/student-notes?case_id=${caseId}&section=history`)
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("finalize-history");
+      if (data.length > 0) {
+        container.innerHTML = `
+          <h3>History</h3>
+          <p>${(data[0].notes || '').replace(/\n/g, '<br>')}</p>
+          <small><em>Submitted: ${new Date(data[0].submitted_at).toLocaleString()}</em></small>
+        `;
+      } else {
+        container.innerHTML = "<h3>History</h3><p>No history recorded.</p>";
+      }
+    });
+
+  // ===== Exam (notes) =====
+  fetch(`/api/student-notes?case_id=${caseId}&section=exam`)
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("finalize-exam");
+      if (data.length > 0) {
+        container.innerHTML = `
+          <h3>Exam</h3>
+          <p>${(data[0].notes || '').replace(/\n/g, '<br>')}</p>
+          <small><em>Submitted: ${new Date(data[0].submitted_at).toLocaleString()}</em></small>
+        `;
+      } else {
+        container.innerHTML = "<h3>Exam</h3><p>No exam notes recorded.</p>";
+      }
+    });
+
+  // ===== Testing & Interpretation (structured) =====
+fetch(`/api/interpretations?case_id=${caseId}`, { credentials: 'include' })
+  .then(res => res.json())
+  .then(interp => {
+    if (!Array.isArray(interp) || !interp.length) return;
+
+    const list = document.getElementById('finalize-ancillary-list');
+    const blocks = interp.map(i => `
+      <div class="interp-box" style="margin:8px 0; padding:10px; border-left:3px solid #115680; background:#f7fafc; border-radius:8px;">
+        <div><strong>${(i.test_type || '').toUpperCase()}</strong> — ${i.date || '—'}</div>
+        <div><em>Reason:</em> ${i.reason || '—'}</div>
+        <div><em>Cooperation/Reliability:</em> ${i.cooperation || '—'}</div>
+        <div><em>OD:</em> ${i.findings_od || '—'}</div>
+        <div><em>OS:</em> ${i.findings_os || '—'}</div>
+      </div>
+    `).join('');
+
+    if (list) {
+      const byType = interp.reduce((acc, i) => {
+        const key = (i.test_type || '').toLowerCase();
+        (acc[key] ||= []).push(i);
+        return acc;
+      }, {});
+      Object.keys(byType).forEach(k => {
+        const li = list.querySelector(`li[data-test="${k}"]`);
+        const html = byType[k].map(i => `
+          <div style="margin-top:6px; padding:8px; border:1px solid #e5eaf0; border-radius:8px;">
+            <small>${i.date || '—'} | Reason: ${i.reason || '—'} | Coop: ${i.cooperation || '—'}</small>
+            <div><em>OD:</em> ${i.findings_od || '—'}</div>
+            <div><em>OS:</em> ${i.findings_os || '—'}</div>
+          </div>
+        `).join('');
+        if (li) li.insertAdjacentHTML('beforeend', html);
+      });
+    } else {
+      const testsBox = document.getElementById('finalize-tests');
+      testsBox.insertAdjacentHTML('beforeend', `
+        <div style="margin-top:12px;">
+          <h4>Interpretations</h4>
+          ${blocks}
+        </div>
+      `);
+    }
+  });
+
+
+  // ===== Assessment & Plan =====
+fetch(`/api/assessment-plan?case_id=${caseId}`)
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("finalize-assessment-plan");
+    if (data.length > 0) {
+
+      const items = data.map(a => {
+        const code = a.icd10_code || a.assessment || "Unspecified";
+        const hasDistinctLabel = a.assessment && a.assessment !== a.icd10_code;
+        const label = hasDistinctLabel ? ` — ${a.assessment}` : "";
+        const plan = a.plan || "N/A";
+
+        return `
+          <li>
+            <strong>${code}</strong>${label}
+            <br><em>Plan:</em> ${plan}
+          </li>
+        `;
+      }).join("");
+
+      container.innerHTML = `
+        <h3>Assessment & Plan</h3>
+        <ul>${items}</ul>
+      `;
+    } else {
+      container.innerHTML = "<h3>Assessment & Plan</h3><p>No assessment recorded.</p>";
+    }
+  });
+
+}
+
+
+// ✅ Hook into Finalize tab click
+document.addEventListener("DOMContentLoaded", () => {
+  const finalizeBtn = document.querySelector('[data-tab="finalize"]');
+  if (finalizeBtn) {
+    finalizeBtn.addEventListener("click", () => {
+      const caseId = getCaseId();
+      loadFinalize(caseId);
+    });
+  }
+});
+
+function renderExamCard(test, findings) {
+  const grid = document.getElementById("examCards");
+  if (!grid) return;
+
+  const card = document.createElement("div");
+  card.className = "exam-card";
+  card.innerHTML = `
+    <h4>${test}</h4>
+    <p>${findings || "No findings recorded yet."}</p>
+    <textarea class="exam-notes-input" placeholder="Enter your notes for ${test}..."></textarea>
+  `;
+  grid.prepend(card);
+}
+
+// put this near the top of your <script> (before generatePDF)
+let currentUserName = 'Student';
+
+async function loadCurrentUser() {
+  try {
+    const res = await fetch('/api/user', { credentials: 'include' });
+    if (res.ok) {
+      const user = await res.json();
+      currentUserName = user?.username || 'Student';
+    }
+  } catch (_) {
+    // leave default
+  }
+}
+
+async function generatePDF() {
+  try {
+    // Source: the whole Finalize container (the 3 cards + Performed Tests)
+    const src = document.getElementById('finalize-container');
+    if (!src) { alert('Finalize content not found.'); return; }
+
+    const caseId = (typeof getCaseId === 'function' ? getCaseId() : '') || '';
+    const headerLine = document.getElementById('patientHeader')?.innerText || 'OptoCase';
+
+    // Ensure we have the username (in case user clicks PDF very fast)
+    if (!currentUserName || currentUserName === 'Student') {
+      await loadCurrentUser();
+    }
+
+    // Build a clean, printable clone so we can strip interactive bits
+    const cloneRoot = document.createElement('div');
+    cloneRoot.style.padding = '16px';
+    cloneRoot.style.background = '#fff';
+    cloneRoot.innerHTML = `
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px; border-bottom:2px solid #eaf3f9; padding-bottom:8px;">
+        <img src="/logo.png" alt="OptoCase" style="height:36px" />
+        <div>
+          <div style="font-size:18px; font-weight:700; color:#115680;">Case Summary</div>
+          <div style="font-size:12px; color:#576b79;">${headerLine}</div>
+          <div style="font-size:12px; color:#576b79;">Student: ${currentUserName}</div>
+          <div style="font-size:12px; color:#576b79;">${new Date().toLocaleString()}</div>
+        </div>
+      </div>
+      ${src.outerHTML}
+    `;
+
+    // Remove any buttons/toolbars inside the clone
+    cloneRoot.querySelectorAll('button, .section-toolbar, .finalize-actions').forEach(el => el.remove());
+
+    // Safe filename
+    const cleanName = String(currentUserName).replace(/[^A-Za-z0-9_-]+/g, '_');
+
+    // html2pdf options
+    const opt = {
+      margin:       [18, 18, 28, 18],   // top, left, bottom, right (pt)
+      filename:     `OptoCase_${caseId || 'case'}_${cleanName}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+      jsPDF:        { unit: 'pt', format: 'letter', orientation: 'portrait' },
+      pagebreak:    { mode: ['css', 'legacy'] }
+    };
+
+    await html2pdf().set(opt).from(cloneRoot).toPdf().get('pdf').then(pdf => {
+      const total = pdf.internal.getNumberOfPages();
+      for (let i = 1; i <= total; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(9);
+        const w = pdf.internal.pageSize.getWidth();
+        const h = pdf.internal.pageSize.getHeight();
+        pdf.text(`Page ${i} of ${total}`, w - 60, h - 18);
+      }
+    }).save();
+  } catch (err) {
+    console.error('PDF error:', err);
+    try { window.print(); } catch (_) {}
+  }
+}
+
+
+
+window.addEventListener('load', async () => {
+  await loadCurrentUser();
+  loadCase();
+});
+
+</script>
+
+<!-- Image Modal -->
+<div id="imageModal" class="modal">
+  <span class="close" onclick="closeModal()">&times;</span>
+  <img id="modalImg" class="modal-content" alt="Exam Image">
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+</body>
+</html>
+

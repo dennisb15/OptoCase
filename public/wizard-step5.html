@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Step 5 – Interpretations & Results</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body {
+  font-family: Arial, sans-serif;
+  background: #f5f7fa;
+  margin: 0;
+  padding: 0;
+}
+.form-container {
+  max-width: 95%;   /* instead of 1100px */
+  width: 95%;
+  margin: 20px auto;
+  background: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+h2 {
+  text-align: center;
+  color: #115680;
+  margin-bottom: 30px;
+}
+h3 {
+  color: #333;
+  border-bottom: 2px solid #115680;
+  padding-bottom: 6px;
+  margin-top: 30px;
+}
+.test-section {
+  background: #fafafa;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+}
+label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4px;
+  color: #444;
+}
+input, select, textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+button {
+  background: #115680;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  display: block;
+  margin: 30px auto 0;
+  transition: background 0.2s ease;
+}
+button:hover {
+  background: #0d4060;
+}
+
+
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Step 5: Interpretations & Results</h2>
+    <form action="/wizard/step5" method="POST">
+      <input type="hidden" name="case_id" id="case_id">
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const caseId = urlParams.get("case_id");
+  if (caseId) {
+    document.getElementById("case_id").value = caseId;
+  }
+</script>
+
+
+      <!-- Fundus Autofluorescence -->
+<div class="test-section">
+  <h3>Fundus Autofluorescence</h3>
+  <div class="form-grid">
+    <div>
+      <label>Test Type:</label>
+      <select name="fa_type">
+        <option value="">-- Select --</option>
+        <option value="short_wave">Short Wave FAF</option>
+        <option value="near_infrared">Near-Infrared FAF</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div>
+      <label>Date:</label>
+      <input type="date" name="fa_date">
+    </div>
+    <div>
+      <label>Reason/Diagnosis:</label>
+      <input type="text" name="fa_reason">
+    </div>
+    <div>
+      <label>Cooperation:</label>
+      <input type="text" name="fa_cooperation">
+    </div>
+    <div>
+      <label>Reliability:</label>
+      <input type="text" name="fa_reliability">
+    </div>
+  </div>
+  <div class="form-grid">
+    <div>
+      <label>Findings OD:</label>
+      <textarea name="fa_findings_od"></textarea>
+    </div>
+    <div>
+      <label>Findings OS:</label>
+      <textarea name="fa_findings_os"></textarea>
+    </div>
+  </div>
+</div>
+
+
+      <!-- OCT -->
+      <div class="test-section">
+        <h3>Optical Coherence Tomography (OCT)</h3>
+        <div class="form-grid">
+          <div>
+            <label>Test Type:</label>
+            <select name="oct_type">
+              <option value="">-- Select --</option>
+              <option value="anterior_seg">Anterior Segment</option>
+              <option value="posterior_seg">Posterior Segment</option>
+              <option value="octa">OCT Angiography</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label>Date:</label>
+            <input type="date" name="oct_date">
+          </div>
+          <div>
+            <label>Reason/Diagnosis:</label>
+            <input type="text" name="oct_reason">
+          </div>
+          <div>
+            <label>Cooperation:</label>
+            <input type="text" name="oct_cooperation">
+          </div>
+          <div>
+            <label>Reliability:</label>
+            <input type="text" name="oct_reliability">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label>Findings OD:</label>
+            <textarea name="oct_findings_od"></textarea>
+          </div>
+          <div>
+            <label>Findings OS:</label>
+            <textarea name="oct_findings_os"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Field -->
+      <div class="test-section">
+        <h3>Visual Field</h3>
+        <div class="form-grid">
+          <div>
+            <label>Test Type:</label>
+            <select name="vf_type">
+              <option value="">-- Select --</option>
+              <option value="24-2">24-2</option>
+              <option value="30-2">30-2</option>
+              <option value="10-2">10-2</option>
+              <option value="esterman">Esterman</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label>Date:</label>
+            <input type="date" name="vf_date">
+          </div>
+          <div>
+            <label>Reason/Diagnosis:</label>
+            <input type="text" name="vf_reason">
+          </div>
+          <div>
+            <label>Cooperation:</label>
+            <input type="text" name="vf_cooperation">
+          </div>
+          <div>
+            <label>Reliability:</label>
+            <input type="text" name="vf_reliability">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label>Findings OD:</label>
+            <textarea name="vf_findings_od"></textarea>
+          </div>
+          <div>
+            <label>Findings OS:</label>
+            <textarea name="vf_findings_os"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gonioscopy -->
+      <div class="test-section">
+        <h3>Gonioscopy</h3>
+        <div class="form-grid">
+          <div>
+            <label>Date:</label>
+            <input type="date" name="gonioscopy_date">
+          </div>
+          <div>
+            <label>Reason/Diagnosis:</label>
+            <input type="text" name="gonioscopy_reason">
+          </div>
+          <div>
+            <label>Cooperation:</label>
+            <input type="text" name="gonioscopy_cooperation">
+          </div>
+          <div>
+            <label>Reliability:</label>
+            <input type="text" name="gonioscopy_reliability">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label>Findings OD:</label>
+            <textarea name="gonioscopy_findings_od"></textarea>
+          </div>
+          <div>
+            <label>Findings OS:</label>
+            <textarea name="gonioscopy_findings_os"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Topography -->
+      <div class="test-section">
+        <h3>Topography</h3>
+        <div class="form-grid">
+          <div>
+            <label>Date:</label>
+            <input type="date" name="topography_date">
+          </div>
+          <div>
+            <label>Reason/Diagnosis:</label>
+            <input type="text" name="topography_reason">
+          </div>
+          <div>
+            <label>Cooperation:</label>
+            <input type="text" name="topography_cooperation">
+          </div>
+          <div>
+            <label>Reliability:</label>
+            <input type="text" name="topography_reliability">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label>Findings OD:</label>
+            <textarea name="topography_findings_od"></textarea>
+          </div>
+          <div>
+            <label>Findings OS:</label>
+            <textarea name="topography_findings_os"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- A-Scan -->
+      <div class="test-section">
+        <h3>A-Scan</h3>
+        <div class="form-grid">
+          <div>
+            <label>Date:</label>
+            <input type="date" name="ascan_date">
+          </div>
+          <div>
+            <label>Reason/Diagnosis:</label>
+            <input type="text" name="ascan_reason">
+          </div>
+          <div>
+            <label>Cooperation:</label>
+            <input type="text" name="ascan_cooperation">
+          </div>
+          <div>
+            <label>Reliability:</label>
+            <input type="text" name="ascan_reliability">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label>Findings OD:</label>
+            <textarea name="ascan_findings_od"></textarea>
+          </div>
+          <div>
+            <label>Findings OS:</label>
+            <textarea name="ascan_findings_os"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- B-Scan -->
+      <div class="test-section">
+        <h3>B-Scan</h3>
+        <div class="form-grid">
+          <div>
+            <label>Date:</label>
+            <input type="date" name="bscan_date">
+          </div>
+          <div>
+            <label>Reason/Diagnosis:</label>
+            <input type="text" name="bscan_reason">
+          </div>
+          <div>
+            <label>Cooperation:</label>
+            <input type="text" name="bscan_cooperation">
+          </div>
+          <div>
+            <label>Reliability:</label>
+            <input type="text" name="bscan_reliability">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label>Findings OD:</label>
+            <textarea name="bscan_findings_od"></textarea>
+          </div>
+          <div>
+            <label>Findings OS:</label>
+            <textarea name="bscan_findings_os"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pachymetry -->
+      <div class="test-section">
+        <h3>Pachymetry</h3>
+        <div class="form-grid">
+          <div>
+            <label>Date:</label>
+            <input type="date" name="pachymetry_date">
+          </div>
+          <div>
+            <label>Reason/Diagnosis:</label>
+            <input type="text" name="pachymetry_reason">
+          </div>
+          <div>
+            <label>Cooperation:</label>
+            <input type="text" name="pachymetry_cooperation">
+          </div>
+          <div>
+            <label>Reliability:</label>
+            <input type="text" name="pachymetry_reliability">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label>Findings OD:</label>
+            <textarea name="pachymetry_findings_od"></textarea>
+          </div>
+          <div>
+            <label>Findings OS:</label>
+            <textarea name="pachymetry_findings_os"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fundus Photo -->
+      <div class="test-section">
+        <h3>Fundus Photo</h3>
+        <div class="form-grid">
+          <div>
+            <label>Date:</label>
+            <input type="date" name="fundus_photo_date">
+          </div>
+          <div>
+            <label>Reason/Diagnosis:</label>
+            <input type="text" name="fundus_photo_reason">
+          </div>
+          <div>
+            <label>Cooperation:</label>
+            <input type="text" name="fundus_photo_cooperation">
+          </div>
+          <div>
+            <label>Reliability:</label>
+            <input type="text" name="fundus_photo_reliability">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label>Findings OD:</label>
+            <textarea name="fundus_photo_findings_od"></textarea>
+          </div>
+          <div>
+            <label>Findings OS:</label>
+            <textarea name="fundus_photo_findings_os"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit">Next ➡️</button>
+    </form>
+  </div>
+</body>
+</html>
+

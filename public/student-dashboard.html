@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Dashboard - OptoCase</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #0b2e52;
+      color: #5aa9e6;
+      text-align: center; /* Center general text */
+    }
+
+    /* Top Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #08213a;
+      padding: 15px 30px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .navbar img {
+      height: 100px;
+    }
+    .navbar .student-info {
+      color: #5aa9e6;
+      font-weight: bold;
+      margin-right: auto;
+      margin-left: 30px;
+      font-size: 20px;
+    }
+    .navbar button {
+      background: linear-gradient(135deg, #2fc4b2, #29a89a);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    .navbar button:hover {
+      background: linear-gradient(135deg, #29a89a, #2fc4b2);
+    }
+
+    /* Tabs */
+    .sidebar {
+      display: flex;
+      background-color: #093259;
+      padding: 15px;
+      justify-content: center;
+      gap: 30px;
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 12px 28px;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+    }
+    .sidebar a:hover {
+      background-color: #2fc4b2;
+      color: white;
+    }
+    .sidebar a.active {
+      background-color: #2fc4b2;
+      color: white;
+      border: 2px solid #29a89a;
+    }
+
+    /* Content area */
+    .content {
+      padding: 40px;
+      max-width: 1000px;
+      margin: 0 auto; /* Center content block */
+      text-align: center; /* Keep headings & paragraphs centered */
+    }
+
+    /* Case Cards Grid */
+    .student-cases {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+      text-align: left; /* Align cards content to left */
+    }
+    .case-card {
+      background: #fff;
+      color: #08213a;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: transform 0.2s ease;
+    }
+    .case-card:hover {
+      transform: translateY(-5px);
+    }
+    .case-card h3 {
+      margin-bottom: 15px;
+    }
+    .case-card button {
+      background: #115680;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .case-card button:hover {
+      background: #0d4060;
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-box {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 700px;   /* wider */
+  max-width: 90%; /* responsive */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  text-align: center;
+}
+
+
+    .modal-box h3 {
+      margin-bottom: 20px;
+      color: #115680;
+    }
+    .calendar-card {
+  display: flex;
+  gap: 40px;           /* increased gap between appointment & insurance */
+  justify-content: center;
+  align-items: stretch;
+  margin-bottom: 20px;
+}
+
+
+    .calendar-card p {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+    .modal-actions button {
+      margin: 10px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .btn-start {
+      background: #115680;
+      color: #fff;
+    }
+    .btn-cancel {
+      background: #ccc;
+    }
+.banner-emergency {
+  display: none; /* hidden unless JS turns it on */
+  background: #e53935;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+
+/* Modal upgrades */
+.modal-box.chart-preview {
+  background: linear-gradient(135deg, #f5f7fa, #e0f7fa);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.calendar-card p {
+  margin: 10px 0;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+}
+
+.calendar-card p strong {
+  margin-left: 6px;
+}
+
+
+
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <img src="/logo.png" alt="OptoCase Logo">
+    <div class="student-info" id="studentName"></div>
+    <button onclick="location.href='/'">Logout</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="sidebar">
+    <a href="#" class="active" onclick="showContent('assignments', this)">Assignments</a>
+    <a href="#" onclick="showContent('cases', this)">📂 View Cases</a>
+    <a href="#" onclick="showContent('progress', this)">My Progress</a>
+  </div>
+
+  <!-- Content -->
+  <div class="content" id="content">
+    <h2>Welcome to your dashboard</h2>
+    <p>Select an option above to get started.</p>
+  </div>
+
+  <!-- Calendar Modal -->
+  <div id="calendarModal" class="modal-overlay">
+    <div class="modal-box chart-preview">
+      <div class="banner-emergency" id="apptBanner">🚨 Emergency Walk-In</div>
+      <h3>📋 Patient Chart Preview</h3>
+      <div id="calendarDetails" class="calendar-card"></div>
+      <div class="modal-actions">
+        <button class="btn-start" id="confirmStart">Begin Encounter</button>
+        <button class="btn-cancel" type="button" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function showContent(tab, element) {
+    const content = document.getElementById('content');
+    const links = document.querySelectorAll('.sidebar a');
+    links.forEach(link => link.classList.remove('active'));
+    element.classList.add('active');
+
+    if (tab === 'assignments') {
+      content.innerHTML = "<h2>Assignments</h2><p>Here you will see your assigned cases.</p>";
+    } else if (tab === 'cases') {
+      content.innerHTML = `
+        <h2>📂 Available Cases</h2>
+        <div id="student-cases-list" class="student-cases"></div>
+      `;
+
+      fetch('/api/student-cases')
+        .then(res => res.json())
+        .then(cases => {
+          const list = document.getElementById('student-cases-list');
+          if (!cases || cases.length === 0) {
+            list.innerHTML = "<p>No cases available yet.</p>";
+            return;
+          }
+
+          list.innerHTML = cases.map(c => `
+            <div class="case-card">
+              <h3>${c.case_name}</h3>
+              <button class="case-btn"
+                data-id="${c.case_id}"
+                data-name="${c.case_name || ''}"
+                data-date="${c.appt_date || ''}"
+                data-time="${c.appt_time || ''}"
+                data-type="${c.exam_type || 'Emergency Walk-in'}"
+                data-patient="${c.patient_name || 'Unknown'}"
+                data-dob="${c.dob || ''}"
+                data-race="${c.race || ''}"
+                data-address="${c.address || ''}"
+                data-vision="${c.vision_insurance || ''}"
+                data-vision-notes="${c.vision_insurance_info || ''}"
+                data-medical="${c.medical_insurance || ''}"
+                data-medical-notes="${c.medical_insurance_info || ''}"
+              >Start Case</button>
+            </div>
+          `).join('');
+        })
+        .catch(() => {
+          document.getElementById('student-cases-list').innerHTML = "<p>Error loading cases.</p>";
+        });
+    } else if (tab === 'progress') {
+      content.innerHTML = "<h2>My Progress</h2><p>Here you will track your performance and learning progress.</p>";
+    }
+  }
+
+  function openModal(caseId, caseName, apptDate, apptTime, apptType, patientName, dob, race, address, visionInsurance, visionNotes, medicalInsurance, medicalNotes) {
+  // Format date
+  const formattedDate = apptDate
+    ? new Date(apptDate).toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' })
+    : "N/A";
+
+  // Format time
+  const formattedTime = apptTime
+    ? new Date(`1970-01-01T${apptTime}`).toLocaleTimeString([], { 
+        hour: 'numeric', 
+        minute: '2-digit', 
+        hour12: true 
+      })
+    : "N/A";
+
+  // Format DOB
+  const formattedDOB = dob 
+    ? new Date(dob).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })
+    : "N/A";
+
+  // ✅ Show/hide emergency banner
+  const banner = document.getElementById('apptBanner');
+  if (apptType && apptType.toLowerCase() === 'emergency walk-in') {
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+
+  document.getElementById('calendarDetails').innerHTML = `
+    <div style="display: flex; gap: 20px;">
+      <!-- Left: Patient + Appointment Info -->
+      <div style="flex: 1; background: #f5f7fa; border: 2px solid #115680; border-radius: 10px; padding: 15px;">
+        <h4 style="margin-top: 0; color: #115680;">Patient Info</h4>
+        <p><strong>Patient:&nbsp;</strong>${patientName || "N/A"}</p>
+        <p><strong>DOB:&nbsp;</strong>${formattedDOB}</p>
+        <p><strong>Race:&nbsp;</strong>${race || "N/A"}</p>
+        <p><strong>Address:&nbsp;</strong>${address || "N/A"}</p>
+        <hr>
+        <h4 style="margin-top: 0; color: #115680;">Appointment Info</h4>
+        <p><strong>Date:&nbsp;</strong>${formattedDate}</p>
+        <p><strong>Time:&nbsp;</strong>${formattedTime}</p>
+        <p><strong>Type:&nbsp;</strong>${apptType || "N/A"}</p>
+      </div>
+
+      <!-- Right: Insurance -->
+      <div style="flex: 1; background: #eef5fb; border: 2px solid #29a89a; border-radius: 10px; padding: 15px;">
+        <h4 style="margin-top: 0; color: #115680;">Insurance</h4>
+        <p><strong>Vision:&nbsp;</strong>${visionInsurance || "N/A"}</p>
+        <p style="margin-left: 10px; font-size: 14px; color: #333;">
+          <em>Notes:&nbsp;</em>${visionNotes || "None"}
+        </p>
+        <p><strong>Medical:&nbsp;</strong>${medicalInsurance || "N/A"}</p>
+        <p style="margin-left: 10px; font-size: 14px; color: #333;">
+          <em>Notes:&nbsp;</em>${medicalNotes || "None"}
+        </p>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('confirmStart').onclick = () => {
+    window.location.href = `/student-case.html?id=${caseId}`;
+  };
+
+  document.getElementById('calendarModal').style.display = 'flex';
+}
+
+
+  // Get username from server
+  fetch('/api/user')
+    .then(res => res.json())
+    .then(data => {
+      if (data.username) {
+        document.getElementById('studentName').textContent = data.username;
+      }
+    })
+    .catch(() => {
+      window.location.href = '/login/student';
+    });
+
+  // ✅ Listen for case button clicks safely
+  document.addEventListener("click", function(e) {
+    if (e.target && e.target.classList.contains("case-btn")) {
+      const btn = e.target;
+      openModal(
+        btn.dataset.id,
+        btn.dataset.name,
+        btn.dataset.date,
+        btn.dataset.time,
+        btn.dataset.type,
+        btn.dataset.patient,
+        btn.dataset.dob,
+        btn.dataset.race,
+        btn.dataset.address,
+        btn.dataset.vision,
+        btn.dataset.visionNotes,
+        btn.dataset.medical,
+        btn.dataset.medicalNotes
+      );
+    }
+  });
+
+  // Function to close the modal
+  function closeModal() {
+    const modal = document.getElementById('calendarModal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+  }
+
+  // Optional: close when pressing ESC key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+
+  // Optional: close when clicking outside the modal box
+  document.getElementById('calendarModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'calendarModal') {
+      closeModal();
+    }
+  });
+</script>
+
+</body>
+</html>
+

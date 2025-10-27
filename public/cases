@@ -1,0 +1,34 @@
+<!-- View Cases Tab Content -->
+<div id="cases" class="tab-content" style="display:none;">
+  <h2>📂 View Cases</h2>
+
+  <!-- Example Case Card -->
+  <div class="case-card">
+    <div class="case-header">
+      <h3 class="case-title">Case #102 - Dry Eye Syndrome</h3>
+      <span class="case-status finalized">Finalized</span>
+      <button class="edit-btn">✏️ Edit</button>
+    </div>
+
+    <div class="case-meta">
+      <p><strong>Student:</strong> John Doe</p>
+      <p><strong>Date:</strong> Sept 8, 2025</p>
+    </div>
+
+    <div class="case-body">
+      <h4>👤 Patient Info</h4>
+      <p>Age: 47 | Gender: Female</p>
+      <p>Chief Complaint: Burning, watery eyes</p>
+
+      <h4>🧪 Exam Findings</h4>
+      <p>Tear Break-Up Time: 6 seconds</p>
+      <p>Schirmer’s Test: 8 mm</p>
+
+      <h4>📋 Assessment & Plan</h4>
+      <ul>
+        <li><strong>H04.123</strong> – Dry eye syndrome, bilateral → Artificial tears QID, warm compresses</li>
+        <li><strong>H01.001</strong> – Blepharitis, right upper lid → Lid hygiene, erythromycin ointment nightly</li>
+      </ul>
+    </div>
+  </div>
+</div>

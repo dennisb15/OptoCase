@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Step 4: Exam Findings</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Step 4: Exam Findings</h2>
+
+    <!-- ✅ enctype added -->
+    <form method="POST" action="/wizard/step4" enctype="multipart/form-data">
+      <input type="hidden" id="case_id" name="case_id">
+      <script>
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById('case_id').value = params.get('case_id');
+      </script>
+
+      <h3>Preliminary Testing</h3>
+
+<!-- Visual Acuity -->
+<label>Visual Acuity</label><br>
+<select name="va_type">
+  <option value="sc">SC (without correction)</option>
+  <option value="cc">CC (with correction)</option>
+</select>
+<input type="text" name="va_od" placeholder="OD (20/20)">
+<input type="text" name="va_os" placeholder="OS (20/20)">
+<br><br>
+
+<!-- EOMs -->
+<label for="eoms">EOMs</label>
+<input type="text" id="eoms" name="eoms" placeholder="Full, restrictions, etc.">
+<br><br>
+
+<!-- Pupils -->
+<label for="pupils">Pupils</label>
+<input type="text" id="pupils" name="pupils" placeholder="PERRLA, APD, etc.">
+<br><br>
+
+<!-- Confrontation Fields -->
+<label for="fields">Confrontation Fields</label>
+<input type="text" id="fields" name="fields" placeholder="Full to finger count, etc.">
+<br><br>
+
+<!-- IOP -->
+<label>IOP</label><br>
+<select name="iop_method">
+  <option value="goldmann">Goldmann</option>
+  <option value="icare">iCare</option>
+  <option value="other">Other</option>
+</select>
+<input type="text" name="iop_od" placeholder="OD (mmHg)">
+<input type="text" name="iop_os" placeholder="OS (mmHg)">
+<br><br>
+
+<!-- Red Cap Desaturation -->
+<label for="redcap">Red Cap Desaturation</label>
+<input type="text" id="redcap" name="redcap" placeholder="OD vs OS % difference">
+<br><br>
+
+<!-- Other -->
+<label for="prelim_other">Other Preliminary Notes</label>
+<textarea id="prelim_other" name="prelim_other"></textarea>
+
+
+      <!-- ✅ Anterior Segment -->
+      <h3>Anterior Segment</h3>
+      <table class="anterior-table">
+        <thead>
+          <tr>
+            <th>OD</th>
+            <th>Section</th>
+            <th>OS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="od_adnexa"></td>
+            <td><strong>Adnexa</strong></td>
+            <td><input type="text" name="os_adnexa"></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="od_lids_lashes"></td>
+            <td><strong>Lids / Lashes</strong></td>
+            <td><input type="text" name="os_lids_lashes"></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="od_conjunctiva"></td>
+            <td><strong>Conjunctiva</strong></td>
+            <td><input type="text" name="os_conjunctiva"></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="od_cornea"></td>
+            <td><strong>Cornea</strong></td>
+            <td><input type="text" name="os_cornea"></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="od_anterior_chamber"></td>
+            <td><strong>Anterior Chamber</strong></td>
+            <td><input type="text" name="os_anterior_chamber"></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="od_iris"></td>
+            <td><strong>Iris</strong></td>
+            <td><input type="text" name="os_iris"></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="od_lens"></td>
+            <td><strong>Lens</strong></td>
+            <td><input type="text" name="os_lens"></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="od_anterior_vitreous"></td>
+            <td><strong>Anterior Vitreous</strong></td>
+            <td><input type="text" name="os_anterior_vitreous"></td>
+          </tr>
+        </tbody>
+      </table>
+      <label for="anterior_image">Upload Anterior Segment Images:</label>
+<input type="file" id="anterior_image" name="anterior_image" accept="image/*" multiple>
+
+      <!-- ✅ Posterior Segment -->
+      <h3>Posterior Segment</h3>
+      <table class="posterior-table">
+        <thead>
+          <tr>
+            <th>OD</th>
+            <th>Section</th>
+            <th>OS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="od_posterior_vitreous"></td>
+            <td><strong>Posterior Vitreous</strong></td>
+            <td><input type="text" name="os_posterior_vitreous"></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="od_cd"></td>
+            <td><strong>C/D (V/H)</strong></td>
+            <td><input type="text" name="os_cd"></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="od_disc"></td>
+            <td><strong>Disc</strong></td>
+            <td><input type="text" name="os_disc"></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="od_macula"></td>
+            <td><strong>Macula</strong></td>
+            <td><input type="text" name="os_macula"></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="od_vessels"></td>
+            <td><strong>Vessels</strong></td>
+            <td><input type="text" name="os_vessels"></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="od_periphery"></td>
+            <td><strong>Periphery</strong></td>
+            <td><input type="text" name="os_periphery"></td>
+          </tr>
+        </tbody>
+      </table>
+      <label for="posterior_image">Upload Posterior Segment Images:</label>
+<input type="file" id="posterior_image" name="posterior_image" accept="image/*" multiple>
+
+      <h3>Ancillary Testing</h3>
+
+<!-- Fundus Autofluorescence -->
+<label>Fundus Autofluorescence</label><br>
+<select name="fundus_autofluorescence_status">
+  <option value="performed">Performed</option>
+  <option value="contraindicated">Contraindicated</option>
+  <option value="not_performed">Not Performed (Unavailable / Not Necessary)</option>
+  <option value="other">Other</option>
+</select>
+<input type="text" name="fundus_autofluorescence_notes" placeholder="Notes">
+<br>
+<label for="fundus_autofluorescence_images">Upload Fundus Autofluorescence Images:</label>
+<input type="file" id="fundus_autofluorescence_images" name="fundus_autofluorescence_images" accept="image/*" multiple>
+<br><br>
+
+<!-- OCT -->
+<label>Optical Coherence Tomography (OCT)</label><br>
+<select id="oct_type" name="oct_type" onchange="handleOCTTypeChange()">
+  <option value="">-- Select OCT Type --</option>
+  <option value="anterior">Anterior Segment</option>
+  <option value="posterior">Posterior Segment</option>
+  <option value="octa">OCT Angiography</option>
+  <option value="other">Other</option>
+</select>
+
+<!-- OCT Subtype (hidden until type is chosen) -->
+<div id="oct_subtype_container" style="display:none; margin-top:10px;">
+  <label for="oct_subtype">Select Specific OCT:</label>
+  <select id="oct_subtype" name="oct_subtype"></select>
+</div>
+
+<select name="oct_status">
+  <option value="performed">Performed</option>
+  <option value="contraindicated">Contraindicated</option>
+  <option value="not_performed">Not Performed (Unavailable / Not Necessary)</option>
+  <option value="other">Other</option>
+</select>
+<input type="text" name="oct_notes" placeholder="Notes">
+<br>
+<label for="oct_images">Upload OCT Images:</label>
+<input type="file" id="oct_images" name="oct_images" accept="image/*" multiple>
+<br><br>
+
+<!-- Visual Field -->
+<label>Visual Field</label><br>
+<select id="vf_status" name="vf_status" onchange="handleVFTypeChange()">
+  <option value="">-- Select VF Status --</option>
+  <option value="performed">Performed</option>
+  <option value="contraindicated">Contraindicated</option>
+  <option value="not_performed">Not Performed (Unavailable / Not Necessary)</option>
+  <option value="other">Other</option>
+</select>
+
+<!-- VF Subtype (only shows if performed) -->
+<div id="vf_subtype_container" style="display:none; margin-top:10px;">
+  <label for="vf_subtype">Select Visual Field Test:</label>
+  <select id="vf_subtype" name="vf_subtype">
+    <option value="24-2">24-2</option>
+    <option value="30-2">30-2</option>
+    <option value="10-2">10-2</option>
+    <option value="Esterman">Esterman</option>
+    <option value="other">Other</option>
+  </select>
+</div>
+
+<input type="text" name="vf_notes" placeholder="Notes">
+<br>
+<label for="vf_images">Upload Visual Field Images:</label>
+<input type="file" id="vf_images" name="vf_images" accept="image/*" multiple>
+<br><br>
+
+<!-- Gonioscopy -->
+<label>Gonioscopy</label><br>
+<select name="gonioscopy_status">
+  <option value="performed">Performed</option>
+  <option value="contraindicated">Contraindicated</option>
+  <option value="not_performed">Not Performed (Unavailable / Not Necessary)</option>
+  <option value="other">Other</option>
+</select>
+<input type="text" name="gonioscopy_notes" placeholder="Notes">
+<br>
+<label for="gonioscopy_images">Upload Gonioscopy Images:</label>
+<input type="file" id="gonioscopy_images" name="gonioscopy_images" accept="image/*" multiple>
+<br><br>
+
+<!-- Topography -->
+<label>Topography</label><br>
+<select name="topography_status">
+  <option value="performed">Performed</option>
+  <option value="contraindicated">Contraindicated</option>
+  <option value="not_performed">Not Performed (Unavailable / Not Necessary)</option>
+  <option value="other">Other</option>
+</select>
+<input type="text" name="topography_notes" placeholder="Notes">
+<br>
+<label for="topography_images">Upload Topography Images:</label>
+<input type="file" id="topography_images" name="topography_images" accept="image/*" multiple>
+<br><br>
+
+<!-- A-Scan -->
+<label>A-Scan</label><br>
+<select name="ascan_status">
+  <option value="performed">Performed</option>
+  <option value="contraindicated">Contraindicated</option>
+  <option value="not_performed">Not Performed (Unavailable / Not Necessary)</option>
+  <option value="other">Other</option>
+</select>
+<input type="text" name="ascan_notes" placeholder="Notes">
+<br>
+<label for="ascan_images">Upload A-Scan Images:</label>
+<input type="file" id="ascan_images" name="ascan_images" accept="image/*" multiple>
+<br><br>
+
+<!-- B-Scan -->
+<label>B-Scan</label><br>
+<select name="bscan_status">
+  <option value="performed">Performed</option>
+  <option value="contraindicated">Contraindicated</option>
+  <option value="not_performed">Not Performed (Unavailable / Not Necessary)</option>
+  <option value="other">Other</option>
+</select>
+<input type="text" name="bscan_notes" placeholder="Notes">
+<br>
+<label for="bscan_images">Upload B-Scan Images:</label>
+<input type="file" id="bscan_images" name="bscan_images" accept="image/*" multiple>
+<br><br>
+
+<!-- Ultrasound Pachymetry -->
+<label>Ultrasound Pachymetry</label><br>
+<select name="pachymetry_status">
+  <option value="performed">Performed</option>
+  <option value="contraindicated">Contraindicated</option>
+  <option value="not_performed">Not Performed (Unavailable / Not Necessary)</option>
+  <option value="other">Other</option>
+</select>
+<input type="text" name="pachymetry_notes" placeholder="Notes">
+<br>
+<label for="pachymetry_images">Upload Pachymetry Images:</label>
+<input type="file" id="pachymetry_images" name="pachymetry_images" accept="image/*" multiple>
+<br><br>
+
+<!-- Fundus Photography -->
+<label>Fundus Photography</label><br>
+<select name="fundus_photo_status">
+  <option value="performed">Performed</option>
+  <option value="contraindicated">Contraindicated</option>
+  <option value="not_performed">Not Performed (Unavailable / Not Necessary)</option>
+  <option value="other">Other</option>
+</select>
+<input type="text" name="fundus_photo_notes" placeholder="Notes">
+<br>
+<label for="fundus_photo_images">Upload Fundus Photography Images:</label>
+<input type="file" id="fundus_photo_images" name="fundus_photo_images" accept="image/*" multiple>
+<br><br>
+
+
+
+
+      <button type="submit">Next ➡️</button>
+    </form>
+
+    <a class="back-link" href="/professor/dashboard">⬅ Back to Dashboard</a>
+  </div>
+
+<script>
+function handleOCTTypeChange() {
+  const octType = document.getElementById("oct_type").value;
+  const container = document.getElementById("oct_subtype_container");
+  const subtype = document.getElementById("oct_subtype");
+
+  subtype.innerHTML = ""; // reset options
+
+  if (octType === "anterior") {
+    subtype.innerHTML = `
+      <option value="angle">Angle</option>
+      <option value="corneal_thickness">Corneal Thickness</option>
+      <option value="other">Other</option>
+    `;
+    container.style.display = "block";
+  } else if (octType === "posterior") {
+    subtype.innerHTML = `
+      <option value="macula">Macula</option>
+      <option value="optic_nerve">Optic Nerve</option>
+      <option value="rnfl">RNFL</option>
+      <option value="other">Other</option>
+    `;
+    container.style.display = "block";
+  } else if (octType === "octa") {
+    subtype.innerHTML = `
+      <option value="octa_macula">OCTA - Macula</option>
+      <option value="octa_optic_nerve">OCTA - Optic Nerve</option>
+      <option value="other">Other</option>
+    `;
+    container.style.display = "block";
+  } else {
+    container.style.display = "none";
+  }
+}
+
+function handleVFTypeChange() {
+  const vfStatus = document.getElementById("vf_status").value;
+  const container = document.getElementById("vf_subtype_container");
+
+  if (vfStatus === "performed") {
+    container.style.display = "block";
+  } else {
+    container.style.display = "none";
+  }
+}
+</script>
+
+
+</body>
+</html>

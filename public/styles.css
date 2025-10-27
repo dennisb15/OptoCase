@@ -1,0 +1,197 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f7fb;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+.container {
+  margin-top: 40px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  width: 600px;
+  max-width: 95%;
+}
+
+h2 {
+  color: #115680;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+label {
+  font-weight: bold;
+  color: #333;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+button {
+  background-color: #115680;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+button:hover {
+  background-color: #0d415f;
+}
+
+.back-link {
+  display: block;
+  margin-top: 15px;
+  text-align: center;
+  color: #115680;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.anterior-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+  background: #fff;
+  color: #000;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.anterior-table th,
+.anterior-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.anterior-table th {
+  background: #115680;
+  color: white;
+}
+
+.anterior-table input {
+  width: 90%;
+  padding: 5px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.posterior-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+  background: #fff;
+  color: #000;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.posterior-table th,
+.posterior-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.posterior-table th {
+  background: #115680;
+  color: white;
+}
+
+.posterior-table input {
+  width: 90%;
+  padding: 5px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.cases-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.case-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.case-card:hover {
+  transform: translateY(-3px);
+}
+
+.case-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.case-title {
+  margin: 0;
+  font-size: 1.3em;
+  color: #115680; /* your theme color */
+}
+
+.case-status {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.9em;
+}
+
+.case-status.finalized {
+  background: #d4f0d4;
+  color: #27632a;
+}
+
+.case-status.draft {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.edit-btn {
+  background: #115680;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.edit-btn:hover {
+  background: #0d3d5a;
+}
+
+.case-body h4 {
+  margin-top: 15px;
+  color: #333;
+}

@@ -1,15 +1,24 @@
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql2'); // only for escape/format helpers
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
-require('dotenv').config();
 const path = require('path');
-const multer = require('multer');  // <--- add multer here
+const multer = require('multer');
+
+// only load .env locally; Railway sets env for prod
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
 const app = express();
-const port = 3000;
+// Railway provides PORT
+const port = process.env.PORT || 3000;
+
+// use the ONE pooled client from db.js (uses DATABASE_URL)
 const { pool } = require('./db');
+
+
 
 
 // Middleware
@@ -43,65 +52,19 @@ const upload = multer({ storage: storage });
 app.use('/uploads', express.static('uploads'));
 
 
-// DB connection (single connection with auto-reconnect, but keep db.query(...) API)
-const dbConfig = {
-  host:     process.env.DB_HOST,
-  user:     process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  dateStrings: true
-};
-
-let connection;
-
-/** establish (or re-establish) the single connection */
-function connect() {
-  connection = mysql.createConnection(dbConfig);
-
-  connection.connect(err => {
-    if (err) {
-      console.error('❌ MySQL connect error, retrying in 2s:', err.code);
-      setTimeout(connect, 2000);
-      return;
-    }
-    console.log('✅ MySQL connected');
-  });
-
-  // If server closes the connection, recreate it
-  connection.on('error', err => {
-    console.error('⚠️ MySQL error:', err.code, 'fatal:', err.fatal);
-    if (err.fatal || err.code === 'PROTOCOL_CONNECTION_LOST') {
-      try { connection.destroy(); } catch (_) {}
-      connect();
-    }
-  });
-}
-connect();
-
-/** Ping before each query; if dead, reconnect then run */
-function getConn(cb) {
-  if (!connection) { connect(); return setTimeout(() => cb(connection), 300); }
-  connection.ping(err => {
-    if (err) {
-      console.warn('🔁 MySQL ping failed, reconnecting...');
-      try { connection.destroy(); } catch (_) {}
-      connect();
-      return setTimeout(() => cb(connection), 300);
-    }
-    cb(connection);
-  });
-}
-
-/** Keep your existing `db.query(...)` usage untouched by wrapping it */
+// Use the pooled client from db.js
 const db = {
   query(sql, params, cb) {
-    // params optional
     if (typeof params === 'function') { cb = params; params = []; }
-    getConn(conn => conn.query(sql, params, cb));
+    pool
+      .query(sql, params || [])
+      .then(([rows]) => cb(null, rows))
+      .catch(err => cb(err));
   },
-  escape: mysql.escape,        // in case you use it elsewhere
-  format: mysql.format
+  escape: mysql.escape,
+  format: mysql.format,
 };
+
 
 
 // Landing page
@@ -1211,8 +1174,3 @@ app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
-
-// Start server
-app.listen(port, () => {
-  console.log(`🚀 Server running at http://localhost:${port}`);
-});

@@ -18,6 +18,17 @@ const port = process.env.PORT || 3000;
 // use the ONE pooled client from db.js (uses DATABASE_URL)
 const { pool } = require('./db');
 
+app.set('trust proxy', 1); // Railway is behind a proxy
+
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  secret: process.env.SESSION_SECRET || 'change-me',
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production', // true on Railway (HTTPS)
+  httpOnly: true,
+  maxAge: 1000 * 60 * 60 * 8, // 8 hours
+}));
 
 
 

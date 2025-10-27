@@ -9,6 +9,8 @@ const multer = require('multer');  // <--- add multer here
 
 const app = express();
 const port = 3000;
+const { pool } = require('./db');
+
 
 // Middleware
 app.use(express.static('public'));
@@ -1194,6 +1196,20 @@ app.get('/api/student-notes/exam-cards', (req, res) => {
   });
 });
 
+// ✅ Test route to check MySQL connection
+app.get('/db-ping', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT 1 AS ok');
+    res.status(200).json({ db: 'connected', result: rows[0] });
+  } catch (e) {
+    res.status(500).json({ db: 'error', code: e.code, message: e.message });
+  }
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
 
 
 // Start server

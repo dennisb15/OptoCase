@@ -1,80 +1,69 @@
-const express = require('express');
-const mysql = require('mysql2'); // only for escape/format helpers
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
-const session = require('express-session');
-const path = require('path');
-const multer = require('multer');
-
-// only load .env locally; Railway sets env for prod
+// ─── Env first (in dev) ────────────────────────────────────────────────────────
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
 
+// ─── Imports ───────────────────────────────────────────────────────────────────
+const express = require('express');
+const path = require('path');
+const mysql = require('mysql2');           // only if you use mysql.format / escape helpers
+const bcrypt = require('bcryptjs');        // use bcryptjs consistently
+const cookieSession = require('cookie-session'); // choose cookie-session (not express-session)
+const multer = require('multer');
+const { pool } = require('./db');          // mysql2/promise pool
+
+// ─── App bootstrap ─────────────────────────────────────────────────────────────
 const app = express();
-// Railway provides PORT
-const port = process.env.PORT || 3000;
+app.set('trust proxy', 1);                  // Railway/HTTPS proxy
+const PORT = process.env.PORT || 3000;
 
-// use the ONE pooled client from db.js (uses DATABASE_URL)
-const { pool } = require('./db');
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+function isBcryptHash(str) {
+  return typeof str === 'string' && str.startsWith('$2');
+}
 
-app.set('trust proxy', 1); // Railway is behind a proxy
+// ─── Core middleware (order matters) ───────────────────────────────────────────
+app.use(express.json());                           // JSON bodies
+app.use(express.urlencoded({ extended: true }));   // HTML form posts
 
-const cookieSession = require('cookie-session');
+// Sessions (cookie-session only)
 app.use(cookieSession({
   name: 'session',
-  secret: process.env.SESSION_SECRET || 'change-me',
+  secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
   sameSite: 'lax',
-  secure: process.env.NODE_ENV === 'production', // true on Railway (HTTPS)
+  secure: process.env.NODE_ENV === 'production',   // true on Railway
   httpOnly: true,
   maxAge: 1000 * 60 * 60 * 8, // 8 hours
 }));
 
+// Static files (serve your public/)
+app.use(express.static(path.join(__dirname, 'public')));
 
-
-// Middleware
-app.use(express.static('public'));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session({
-  secret: 'supersecretkey', // change this to something unique
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false } // set secure:true if using HTTPS
-}));
-
-// Middleware
-app.use(express.static('public'));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());   // ✅ parse JSON
-
-
-// Multer storage configuration
+// ─── Multer (uploads) ──────────────────────────────────────────────────────────
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // save in uploads/ folder
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename:   (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
 });
-const upload = multer({ storage: storage });
-
-// Make the uploads folder accessible
+const upload = multer({ storage });
 app.use('/uploads', express.static('uploads'));
 
-
-// Use the pooled client from db.js
+// ─── DB helper (callback wrapper over promise pool) ────────────────────────────
 const db = {
   query(sql, params, cb) {
     if (typeof params === 'function') { cb = params; params = []; }
-    pool
-      .query(sql, params || [])
+    pool.query(sql, params || [])
       .then(([rows]) => cb(null, rows))
       .catch(err => cb(err));
   },
   escape: mysql.escape,
   format: mysql.format,
 };
+
+// (optional) make helpers available to routes/templates
+app.locals.bcrypt = bcrypt;
+app.locals.isBcryptHash = isBcryptHash;
+app.locals.db = db;
+
 
 
 
@@ -92,55 +81,89 @@ app.get('/login/professor', (req, res) => {
   res.sendFile(__dirname + '/public/professor-login.html');
 });
 
-// Student login
-app.post('/auth/student', (req, res) => {
-  const { username, password } = req.body;
+// Student login (async/await + pool)
+app.post('/auth/student', async (req, res) => {
+  try {
+    const rawUser = (req.body?.username ?? '').trim();
+    const rawPass = (req.body?.password ?? '').trim();
+    if (!rawUser || !rawPass) return res.status(400).send('❌ Missing username or password');
 
-  db.query(
-    'SELECT * FROM users WHERE username = ? AND role = "student"',
-    [username],
-    async (err, results) => {
-      if (err) return res.status(500).send('❌ Database error');
-      if (results.length === 0) return res.send('❌ Invalid student credentials');
+    const [rows] = await pool.query(
+      'SELECT id, username, role, password FROM users WHERE TRIM(username)=TRIM(?) LIMIT 5',
+      [rawUser]
+    );
+    if (rows.length === 0) return res.status(401).send('❌ Invalid student credentials');
 
-      const user = results[0];
-      const match = await bcrypt.compare(password, user.password);
+    // find a student row for that username
+    const user = rows.find(r => String(r.role).toLowerCase() === 'student') || rows[0];
 
-      if (match) {
-        // ✅ include user.id so it’s available later
-        req.session.user = { id: user.id, username: user.username, role: 'student' };
-        res.redirect('/student/dashboard');
-      } else {
-        res.send('❌ Invalid student credentials');
-      }
+    // only allow if their role is student
+    if (String(user.role).toLowerCase() !== 'student') {
+      return res.status(401).send('❌ Invalid student credentials (not a student)');
     }
-  );
+
+    const ok = isBcryptHash(user.password)
+      ? await bcrypt.compare(rawPass, user.password)
+      : rawPass === user.password;
+
+    if (!ok) return res.status(401).send('❌ Invalid student credentials');
+
+    // store user in session
+    req.session.user = { id: user.id, username: user.username, role: 'student' };
+
+    // If you serve static HTML files:
+    // return res.redirect('/student-dashboard.html');
+    return res.redirect('/student/dashboard'); // keep this if you already route it
+  } catch (err) {
+    console.error('Student login error:', err);
+    return res.status(500).send('❌ Database error');
+  }
 });
 
-// Professor login
-app.post('/auth/professor', (req, res) => {
-  const { username, password } = req.body;
 
-  db.query(
-    'SELECT * FROM users WHERE username = ? AND role = "professor"',
-    [username],
-    async (err, results) => {
-      if (err) return res.status(500).send('❌ Database error');
-      if (results.length === 0) return res.send('❌ Invalid professor credentials');
+app.post('/auth/professor', async (req, res) => {
+  try {
+    const rawUser = (req.body?.username ?? '').trim();
+    const rawPass = (req.body?.password ?? '').trim();
 
-      const user = results[0];
-      const match = await bcrypt.compare(password, user.password);
+    console.log('[PROF] content-type:', req.headers['content-type']);
+    console.log('[PROF] body:', req.body);
 
-      if (match) {
-        // ✅ same here
-        req.session.user = { id: user.id, username: user.username, role: 'professor' };
-        res.redirect('/professor/dashboard');
-      } else {
-        res.send('❌ Invalid professor credentials');
-      }
+    if (!rawUser || !rawPass) return res.status(400).send('❌ Missing username or password');
+
+    const [rows] = await pool.query(
+      'SELECT id, username, role, password FROM users WHERE TRIM(username)=TRIM(?) LIMIT 5',
+      [rawUser]
+    );
+    console.log('[PROF] rows:', rows);
+
+    if (rows.length === 0) return res.status(401).send('❌ Invalid professor credentials (no such username)');
+
+    const prof = rows.find(r => String(r.role).toLowerCase() === 'professor') || rows[0];
+    if (String(prof.role).toLowerCase() !== 'professor') {
+      return res.status(401).send('❌ Invalid professor credentials (not a professor)');
     }
-  );
+
+    const ok = isBcryptHash(prof.password)
+      ? await bcrypt.compare(rawPass, prof.password)
+      : rawPass === prof.password;
+
+    console.log('[PROF] pass ok?', ok);
+
+    if (!ok) return res.status(401).send('❌ Invalid professor credentials (password mismatch)');
+
+    // success
+    req.session && (req.session.user = { id: prof.id, username: prof.username, role: 'professor' });
+    return res.redirect('/professor-dashboard.html'); // your file exists in /public
+  } catch (e) {
+    console.error('[PROF] error:', e);
+    return res.status(500).send('❌ Database error');
+  }
 });
+
+
+
+
 
 
 app.post('/api/student-notes', (req, res) => {
@@ -1180,8 +1203,31 @@ app.get('/db-ping', async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+// ---- DIAG: simple ping to prove deploy version ----
+app.get('/_diag/ping', (req, res) => {
+  res.json({ ok: true, buildTime: new Date().toISOString() });
 });
+
+// ---- DIAG: show current DB + first few users ----
+app.get('/_diag/info', async (req, res) => {
+  try {
+    const [[db]] = await pool.query('SELECT DATABASE() AS db');
+    const [users] = await pool.query('SELECT id, username, role FROM users ORDER BY id LIMIT 5');
+    res.json({
+      node_env: process.env.NODE_ENV,
+      db_in_use: db?.db,
+      users_sample: users
+    });
+  } catch (e) {
+    res.status(500).json({ error: String(e) });
+  }
+});
+
+
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
 

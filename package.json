@@ -1,24 +1,28 @@
 {
   "name": "optocase",
   "version": "1.0.0",
+  "private": true,
+  "description": "OptoCase server",
   "main": "server.js",
+  "engines": { "node": ">=18 <=22" },
   "scripts": {
     "start": "node --max-old-space-size=4096 server.js",
     "dev": "nodemon --exec \"node --max-old-space-size=4096 server.js\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
+    "compression": "^1.7.4",
     "cookie-session": "^2.1.1",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
-    "express-session": "^1.18.2",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
     "multer": "^2.0.2",
     "mysql2": "^3.14.4"
-  }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

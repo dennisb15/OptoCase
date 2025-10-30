@@ -1,27 +1,28 @@
 // db.js
 const mysql = require('mysql2/promise');
-require('dotenv').config();
 
+// Only load .env locally; Railway injects env in prod
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
+/**
+ * Parse mysql://user:pass@host:port/db?ssl=require
+ * Forces TLS for Railway proxy hosts.
+ */
 function parseUrl(url) {
   const u = new URL(url);
 
-  // accept multiple spellings and default to ON for Railway proxy
   const q = u.searchParams;
   const sslFlag = (q.get('ssl') || q.get('sslmode') || q.get('sslMode') || '').toLowerCase();
-  let wantSSL = /^(1|true|require|required|enabled)$/i.test(sslFlag);
+  let wantSSL = /^(1|true|require|required|enabled|verify_ca|verify_full)$/i.test(sslFlag);
 
-  // If using Railway proxy host, force SSL on (proxy requires TLS)
   const isRailwayProxy = /\.proxy\.rlwy\.net$/i.test(u.hostname);
-  if (isRailwayProxy) wantSSL = true;
+  if (isRailwayProxy) wantSSL = true; // Railway proxy requires TLS
 
-  const ssl =
-    wantSSL
-      ? {
-          // Railway proxy presents a self-signed chain
-          rejectUnauthorized: false,
-          minVersion: 'TLSv1.2',
-        }
-      : undefined;
+  const ssl = wantSSL
+    ? { rejectUnauthorized: false, minVersion: 'TLSv1.2' }
+    : undefined;
 
   return {
     host: u.hostname,
@@ -33,7 +34,7 @@ function parseUrl(url) {
   };
 }
 
-// Prefer DATABASE_URL; else fall back to MYSQL* vars
+// Prefer DATABASE_URL; else use MYSQL* envs
 const cfg = process.env.DATABASE_URL
   ? parseUrl(process.env.DATABASE_URL)
   : {
@@ -41,30 +42,41 @@ const cfg = process.env.DATABASE_URL
       port: Number(process.env.MYSQLPORT || 3306),
       user: process.env.MYSQLUSER,
       password: process.env.MYSQLPASSWORD,
-      database: process.env.MYSQLDATABASE,
-      ssl: ['true','1','require','required','enabled'].includes(String(process.env.MYSQL_SSL || '').toLowerCase())
-        ? { rejectUnauthorized: false, minVersion: 'TLSv1.2' }
-        : undefined,
+      database: process.env.MYSQLDATABASE || 'railway',
+      ssl: ['true','1','require','required','enabled'].includes(
+        String(process.env.MYSQL_SSL || '').toLowerCase()
+      ) ? { rejectUnauthorized: false, minVersion: 'TLSv1.2' } : undefined,
     };
 
-// 🔎 Log what we’re actually passing (safe)
-console.log('DEBUG DB CONFIG host/port/db:', cfg.host, cfg.port, cfg.database);
-console.log('DEBUG DB SSL:', cfg.ssl ? cfg.ssl : 'no SSL');
+// Optional debug prints without flooding Railway logs
+if (process.env.DEBUG_DB === '1') {
+  console.log('[DB] host:', cfg.host, 'port:', cfg.port, 'db:', cfg.database);
+  console.log('[DB] SSL:', cfg.ssl ? 'on' : 'off');
+}
 
+// Create a resilient pool
 const pool = mysql.createPool({
   ...cfg,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  enableKeepAlive: true,      // keep TCP alive
+  keepAliveInitialDelay: 10000,
+  charset: 'utf8mb4',
+  // Timeouts help avoid hanging under proxy hiccups
+  connectTimeout: 15000,
+  idleTimeout: 60000
 });
 
-// Always do a tiny self-test so logs show success/failure in prod too
+// One-time ping (quiet unless DEBUG_DB)
 (async () => {
   try {
     const [r] = await pool.query('SELECT 1 AS ok');
-    console.log('DB connected:', cfg.host, cfg.port, r[0]);
+    if (process.env.DEBUG_DB === '1') {
+      console.log('[DB] initial ping ok:', r && r[0]);
+    }
   } catch (e) {
-    console.error('DB connect failed:', e.code, e.message, 'host:', cfg.host, 'port:', cfg.port);
+    console.error('[DB] initial ping failed:', e.code, e.message);
   }
 })();
 

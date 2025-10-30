@@ -17,45 +17,81 @@ const caseAttemptsRouter = require('./routes/caseAttempts');
 
 // ─── App bootstrap ─────────────────────────────────────────────────────────────
 const app = express();
-app.set('trust proxy', 1);                  // Railway/HTTPS proxy
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
+
+// --- Health routes FIRST (before any middleware) ---
+app.all('/healthz', (_req, res) => res.status(200).send('ok'));
+
+app.all(
+  ['/health-db', '/health-db/', '/api/health-db', '/api/health-db/'],
+  async (_req, res) => {
+    try {
+      const [rows] = await pool.query('SELECT 1 AS ok');
+      return res.json({ ok: rows?.[0]?.ok === 1 });
+    } catch (e) {
+      console.error('DB health error:', e);
+      return res.status(500).json({ ok: false, error: e.message });
+    }
+  }
+);
+
+console.log('HEALTH ROUTES READY'); // shows in Deploy Logs
+
+// Top-of-stack request logger (shows in HTTP Logs)
+app.use((req, _res, next) => {
+  console.log('[TOP]', req.method, req.originalUrl, 'path:', req.path);
+  next();
+});
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 function isBcryptHash(str) {
   return typeof str === 'string' && str.startsWith('$2');
 }
 
-
-
 // ─── Core middleware (order matters) ───────────────────────────────────────────
-app.use(express.json());                           // JSON bodies
-app.use(express.urlencoded({ extended: true }));   // HTML form posts
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Sessions (cookie-session only)
 app.use(cookieSession({
   name: 'session',
   secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
   sameSite: 'lax',
-  secure: process.env.NODE_ENV === 'production',   // true on Railway
+  secure: process.env.NODE_ENV === 'production',
   httpOnly: true,
-  maxAge: 1000 * 60 * 60 * 8, // 8 hours
+  maxAge: 1000 * 60 * 60 * 8,
 }));
 
-// ✅ API auth gate with allowlist for public GETs
+// ✅ API auth gate with explicit health skips
 app.use((req, res, next) => {
+  console.log('[GATE]', req.method, req.originalUrl, 'path:', req.path);
+
+  // hard skip for health endpoints (no auth)
+  if (
+    req.path === '/healthz' ||
+    req.path === '/health-db' ||
+    req.path === '/health-db/' ||
+    req.path === '/api/health-db' ||
+    req.path === '/api/health-db/'
+  ) {
+    return next();
+  }
+
   if (req.path.startsWith('/api')) {
     const allowlist = [
-      { method: 'GET', regex: /^\/api\/cases\/?$/ },        // list cases
-      { method: 'GET', regex: /^\/api\/cases\/\d+\/?$/ },   // get case by id
+      { method: 'GET', regex: /^\/api\/cases\/?$/ },
+      { method: 'GET', regex: /^\/api\/cases\/\d+\/?$/ },
+      { method: 'GET', regex: /^\/api\/health-db(?:\/)?$/ }, // tolerate trailing slash
     ];
     const whitelisted = allowlist.some(r => r.method === req.method && r.regex.test(req.path));
-
     if (!req.session?.user && !whitelisted) {
       return res.status(401).json({ error: 'Not authenticated' });
     }
   }
   next();
 });
+
 
 
 // ✅ Adapter: frontend POST /api/cases/:id/complete → updates attempt
@@ -99,21 +135,6 @@ app.post('/api/cases/:id/complete', async (req, res) => {
 // ─── API routes ───────────────────────────────────────────────────────────────
 // ✅ mount router at just `/api` since it already defines /case-attempts/...
 app.use('/api', caseAttemptsRouter);
-
-
-
-// Health check (for Railway + Cloudflare)
-app.get('/healthz', (_req, res) => res.status(200).send('ok'));
-
-// Database connection check
-app.get('/api/health-db', async (_req, res) => {
-  try {
-    const [rows] = await pool.query('SELECT 1 AS ok');
-    res.json({ ok: rows?.[0]?.ok === 1 });
-  } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
-  }
-});
 
 
 // Static files (serve your public/)
@@ -1337,9 +1358,13 @@ app.use('/api', (req, res) => {
 });
 
 
-// Start the server
+// --- Catch-all for unknown routes (optional) ---
+app.use((req, res) => {
+  res.status(404).send('Not Found');
+});
+
+// --- Start the server ---
 app.listen(PORT, () => {
   console.log(`🚀 Server running: http://localhost:${PORT}`);
 });
-
 

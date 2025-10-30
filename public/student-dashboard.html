@@ -202,6 +202,35 @@
   margin-left: 6px;
 }
 
+.progress-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.progress-card {
+  border: 1px solid #e5e7eb;
+  border-left: 6px solid #115680;
+  border-radius: 10px;
+  padding: 12px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.progress-card.done {
+  border-left-color: #16a34a;
+}
+
+.progress-card.inprogress {
+  border-left-color: #facc15;
+}
+
+.progress-card a {
+  color: #115680;
+  text-decoration: underline;
+}
+
+
 
 
   </style>
@@ -289,8 +318,42 @@
           document.getElementById('student-cases-list').innerHTML = "<p>Error loading cases.</p>";
         });
     } else if (tab === 'progress') {
-      content.innerHTML = "<h2>My Progress</h2><p>Here you will track your performance and learning progress.</p>";
-    }
+  content.innerHTML = "<h2>My Progress</h2><p>Loading your cases...</p>";
+
+  // Fetch progress data from your backend
+  fetch('/api/my-progress')
+    .then(res => res.json())
+    .then(data => {
+      const list = document.createElement('div');
+      list.classList.add('progress-list');
+
+      if (!data.attempts || data.attempts.length === 0) {
+        list.innerHTML = "<p>No cases started yet.</p>";
+      } else {
+        list.innerHTML = data.attempts.map(a => {
+          const statusClass = a.status === 'COMPLETED' ? 'done' : 'inprogress';
+          const completed = a.status === 'COMPLETED'
+            ? `<a href="${a.pdf_url || '#'}" target="_blank">View PDF</a>`
+            : `<span>In Progress – last page: ${a.last_page}</span>`;
+          return `
+            <div class="progress-card ${statusClass}">
+              <h3>${a.case_name}</h3>
+              <p>Status: ${a.status}</p>
+              <p>${completed}</p>
+            </div>
+          `;
+        }).join('');
+      }
+
+      content.innerHTML = "<h2>My Progress</h2>";
+      content.appendChild(list);
+    })
+    .catch(err => {
+      console.error('Error loading progress:', err);
+      content.innerHTML = "<h2>My Progress</h2><p>Error loading data.</p>";
+    });
+}
+
   }
 
   function openModal(caseId, caseName, apptDate, apptTime, apptType, patientName, dob, race, address, visionInsurance, visionNotes, medicalInsurance, medicalNotes) {

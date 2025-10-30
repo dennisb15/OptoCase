@@ -12,6 +12,9 @@ const cookieSession = require('cookie-session'); // choose cookie-session (not e
 const multer = require('multer');
 const { pool } = require('./db');          // mysql2/promise pool
 
+const caseAttemptsRouter = require('./routes/caseAttempts');
+
+
 // ─── App bootstrap ─────────────────────────────────────────────────────────────
 const app = express();
 app.set('trust proxy', 1);                  // Railway/HTTPS proxy
@@ -21,6 +24,8 @@ const PORT = process.env.PORT || 3000;
 function isBcryptHash(str) {
   return typeof str === 'string' && str.startsWith('$2');
 }
+
+
 
 // ─── Core middleware (order matters) ───────────────────────────────────────────
 app.use(express.json());                           // JSON bodies
@@ -35,6 +40,81 @@ app.use(cookieSession({
   httpOnly: true,
   maxAge: 1000 * 60 * 60 * 8, // 8 hours
 }));
+
+// ✅ API auth gate with allowlist for public GETs
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    const allowlist = [
+      { method: 'GET', regex: /^\/api\/cases\/?$/ },        // list cases
+      { method: 'GET', regex: /^\/api\/cases\/\d+\/?$/ },   // get case by id
+    ];
+    const whitelisted = allowlist.some(r => r.method === req.method && r.regex.test(req.path));
+
+    if (!req.session?.user && !whitelisted) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+  }
+  next();
+});
+
+
+// ✅ Adapter: frontend POST /api/cases/:id/complete → updates attempt
+app.post('/api/cases/:id/complete', async (req, res) => {
+  try {
+    const caseId = req.params.id;
+    const pdfUrl = req.body?.pdfUrl || null;
+    const user = req.session?.user;
+    if (!user) return res.status(401).json({ error: 'Not authenticated' });
+
+    // find or create attempt
+    const [rows] = await pool.query(
+      'SELECT attempt_id, status FROM case_attempts WHERE case_id=? AND user_id=? LIMIT 1',
+      [caseId, user.id]
+    );
+
+    let attemptId;
+    if (rows.length) {
+      attemptId = rows[0].attempt_id;
+    } else {
+      const [ins] = await pool.query(
+        'INSERT INTO case_attempts (case_id, user_id, last_page, status) VALUES (?, ?, ?, ?)',
+        [caseId, user.id, 'finalize', 'IN_PROGRESS']
+      );
+      attemptId = ins.insertId;
+    }
+
+    // mark complete
+    await pool.query(
+      'UPDATE case_attempts SET status="COMPLETED", pdf_url=?, completed_at=NOW() WHERE attempt_id=? AND user_id=?',
+      [pdfUrl, attemptId, user.id]
+    );
+
+    return res.json({ ok: true, attemptId, caseId });
+  } catch (e) {
+    console.error('complete case (adapter) error:', e);
+    return res.status(500).json({ error: 'Server error completing case' });
+  }
+});
+
+// ─── API routes ───────────────────────────────────────────────────────────────
+// ✅ mount router at just `/api` since it already defines /case-attempts/...
+app.use('/api', caseAttemptsRouter);
+
+
+
+// Health check (for Railway + Cloudflare)
+app.get('/healthz', (_req, res) => res.status(200).send('ok'));
+
+// Database connection check
+app.get('/api/health-db', async (_req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT 1 AS ok');
+    res.json({ ok: rows?.[0]?.ok === 1 });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 
 // Static files (serve your public/)
 app.use(express.static(path.join(__dirname, 'public')));
@@ -519,33 +599,49 @@ app.get('/api/student-cases', (req, res) => {
 // ======================
 // Case Wizard - Step 1
 // ======================
+
+// Serve Step 1 page (keep protected)
+app.get('/wizard/step1', (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'professor') {
+    return res.status(403).send('❌ Unauthorized');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'wizard-step1.html'));
+});
+
+// Handle Step 1 submit
 app.post('/wizard/step1', (req, res) => {
   const { case_name, instructions } = req.body;
 
   if (!req.session.user || req.session.user.role !== 'professor') {
     return res.status(403).send('❌ Unauthorized');
   }
+  if (!case_name || !case_name.trim()) {
+    return res.status(400).send('case_name required');
+  }
 
-  db.query(
-    'INSERT INTO cases (case_name, instructions, created_by) VALUES (?, ?, ?)',
-    [case_name, instructions, req.session.user.username],
-    (err, result) => {
-      if (err) {
-        console.error('❌ Error inserting case basics:', err);
-        return res.status(500).send('Database error');
-      }
+  const sql = 'INSERT INTO cases (case_name, instructions, created_by) VALUES (?, ?, ?)';
+  const params = [case_name.trim(), instructions || null, req.session.user.username];
 
-      const caseId = result.insertId;
-      console.log('✅ New case created with ID:', caseId);
-
-      res.redirect(`/wizard/step2?case_id=${caseId}`);
+  console.log('STEP1 INSERT SQL:', sql, params);
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      console.error('❌ STEP1 DB ERROR:', err.code, err.sqlMessage || err.message);
+      return res.status(500).send(err.sqlMessage || 'Database error');
     }
-  );
+    const caseId = result.insertId;
+    console.log('✅ Step 1 OK — new case_id:', caseId);
+    return res.redirect(`/wizard/step2?case_id=${caseId}`);
+  });
 });
 
+// Serve Step 2 page
 app.get('/wizard/step2', (req, res) => {
-  res.sendFile(__dirname + '/public/wizard-step2.html');
+  if (!req.session.user || req.session.user.role !== 'professor') {
+    return res.status(403).send('❌ Unauthorized');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'wizard-step2.html'));
 });
+
 
 // ======================
 // Case Wizard - Step 2
@@ -1223,11 +1319,27 @@ app.get('/_diag/info', async (req, res) => {
   }
 });
 
+// ✅ Always respond with JSON for errors in APIs
+app.use((err, req, res, next) => {
+  console.error(err);
+  const status = err.status || 500;
+  // If it's an API request, force JSON
+  if (req.path.startsWith('/api')) {
+    return res.status(status).json({ error: err.message || 'Server error' });
+  }
+  // Otherwise, fall back to text
+  res.status(status).send(err.message || 'Server error');
+});
+
+// ✅ JSON fallback for any unknown /api route
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'Not found', path: req.originalUrl });
+});
 
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running: http://localhost:${PORT}`);
 });
 
 
